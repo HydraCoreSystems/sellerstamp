@@ -56,6 +56,7 @@ export const HOME = {
   camera: 'Take a photo',
   pickHint: 'Choose a whole sale at once. Your originals are never touched.',
   designs: 'Your designs',
+  editDesign: 'Change how your stamp looks',
   settings: 'Settings',
 };
 
@@ -74,6 +75,15 @@ export const FIRST_RUN = {
 
 export const STUDIO = {
   title: 'Your stamp',
+  designs: 'Your designs',
+  sliders: 'Size and feel',
+  photoOf: (n: number, total: number) => `Photo ${n} of ${total}`,
+  left: 'Left',
+  right: 'Right',
+  up: 'Up',
+  down: 'Down',
+  smaller: 'Smaller',
+  larger: 'Larger',
   style: 'Style',
   words: 'Words',
   customText: 'Your own main line',
@@ -128,6 +138,12 @@ export const BATCH = {
   saveAgain: 'Try saving again',
   share: 'Share',
   stampAnother: 'Stamp more photos',
+  continue: 'Continue stamping',
+  seePlans: 'See plans',
+  failedCount: (n: number) => (n === 1 ? '1 photo failed. You can try it again.' : `${n} photos failed. You can try each again.`),
+  blockedBody: (n: number) =>
+    n === 1 ? '1 photo is waiting for more stamps. Everything already stamped is safe and ready to save.' : `${n} photos are waiting for more stamps. Everything already stamped is safe and ready to save.`,
+  partial: 'Some photos could not be saved. Nothing is lost. Try saving again.',
   saved: 'Saved to your photos',
   progress: (done: number, total: number) => `${done} of ${total} stamped`,
   permissionTitle: 'Photos needs your OK to save',
@@ -140,6 +156,16 @@ export const BATCH = {
 
 export const SETTINGS = {
   title: 'Settings',
+  defaultDesign: 'Default stamp',
+  defaultHint: 'The design, style, strength and corner used when you start a batch.',
+  moreOptions: 'More ways to change it',
+  lifetimeOwned: 'You have the lifetime unlock. There is no limit on stamps.',
+  planActive: 'Your plan is active. There is no limit on stamps.',
+  planNone: 'No plan. Your free stamps are counted above.',
+  seePlans: 'See plans',
+  storeDown: 'The store could not be reached. Try again in a moment.',
+  privacyLink: 'Read the privacy page',
+  honestyTitle: 'What a stamp does',
   profile: 'About you',
   sellerName: 'Your name or shop name',
   roomName: 'Room or shop',
@@ -174,6 +200,7 @@ export const PAYWALL = {
   buy: 'Choose',
   notNow: 'Not now',
   storeDown: 'The store could not be reached. Your stamps are safe. Try again in a moment.',
+  tryAgain: 'Try again',
   terms: [
     'Payment is charged to your Apple Account at confirmation of purchase.',
     'A subscription renews automatically unless it is turned off at least 24 hours before the end of the current period.',

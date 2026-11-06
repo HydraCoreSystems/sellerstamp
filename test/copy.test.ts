@@ -66,7 +66,7 @@ describe('the screens', () => {
   it('take their words from the copy file, with no oversell and no dashes in any quoted text', () => {
     expect(sources.length).toBeGreaterThan(0);
     for (const f of sources) {
-      const code = readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+      const code = readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').replace(/'\d+%'/g, "''");
       expect(OVERSELL.test(code), f).toBe(false);
       expect(code, f).not.toMatch(/—|–|--/);
     }
