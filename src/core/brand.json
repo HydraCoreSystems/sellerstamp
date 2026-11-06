@@ -1,0 +1,8 @@
+{
+  "name": "SellerStamp",
+  "slug": "sellerstamp",
+  "scheme": "sellerstamp",
+  "bundleId": "com.gatheringmoss.sellerstamp",
+  "productPrefix": "com.gatheringmoss.sellerstamp",
+  "workingName": true
+}
