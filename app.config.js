@@ -1,4 +1,4 @@
-// Every naming decision lives in src/core/brand.json. SellerStamp is a working name only.
+// Every naming decision lives in src/core/brand.json. SellerSeal is a working name only.
 // Phil coins the final name; renaming the app is an edit to that one file.
 const brand = require('./src/core/brand.json');
 

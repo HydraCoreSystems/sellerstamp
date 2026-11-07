@@ -1,9 +1,9 @@
 {
-  "name": "SellerStamp",
-  "slug": "sellerstamp",
-  "scheme": "sellerstamp",
-  "bundleId": "com.gatheringmoss.sellerstamp",
-  "productPrefix": "com.gatheringmoss.sellerstamp",
+  "name": "SellerSeal",
+  "slug": "sellerseal",
+  "scheme": "sellerseal",
+  "bundleId": "com.gatheringmoss.sellerseal",
+  "productPrefix": "com.gatheringmoss.sellerseal",
   "workingName": true,
   "privacyUrl": ""
 }

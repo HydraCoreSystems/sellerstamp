@@ -1,4 +1,4 @@
-# SellerStamp (working name)
+# SellerSeal (working name)
 
 An iPhone app that puts a seller's name and room or shop on every photo of a sale, all at once. Expo SDK 58, React Native, Skia. No account, no server. Everything stays on the phone.
 
