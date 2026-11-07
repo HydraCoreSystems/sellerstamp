@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { Image, Platform, Pressable, ActivityIndicator, StyleSheet, Switch, Text, TextInput, View, type ImageStyle, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
+import { createContext, useContext, useEffect, useRef, useState, type ComponentRef, type ReactNode } from 'react';
+import { Image, Keyboard, Platform, ScrollView, type ScrollViewProps, Pressable, ActivityIndicator, StyleSheet, Switch, Text, TextInput, View, type ImageStyle, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
 
 /** Wax and gold: oxblood ground, antique gold rules, foil gold for the one main action, ivory words. */
 export const colors = {
@@ -189,11 +189,61 @@ export function Row({ children, style }: { children: ReactNode; style?: StylePro
   return <View style={[styles.row, style]}>{children}</View>;
 }
 
-export function Field({ label, hint, ...props }: TextInputProps & { label: string; hint?: string }) {
+/**
+ * Keeps a screen with text boxes usable with the keyboard open. It measures how far the keyboard reaches
+ * into the screen and lifts the content by exactly that much, so it works whether or not the system
+ * has already resized the window (on Android it varies). `keyboard` tells the screen whether it is up.
+ */
+const KeyboardContext = createContext<{ keyboard: number; reveal: (view: ComponentRef<typeof View> | null) => void }>({ keyboard: 0, reveal: () => {} });
+export const useKeyboard = () => useContext(KeyboardContext).keyboard;
+
+export function KeyboardScreen({ children, style, scrollProps, scrollStyle, footer, header }: { header?: ReactNode; children: ReactNode; style?: StyleProp<ViewStyle>; scrollProps?: ScrollViewProps; scrollStyle?: StyleProp<ViewStyle>; footer?: ReactNode }) {
+  const box = useRef<ComponentRef<typeof View>>(null);
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  const [lift, setLift] = useState(0);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', (e) => {
+      box.current?.measureInWindow((_x, y, _w, h) => setLift(Math.max(0, Math.round(y + h - e.endCoordinates.screenY))));
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => setLift(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  const reveal = (view: ComponentRef<typeof View> | null) => {
+    const sv = scroll.current;
+    if (!view || !sv) return;
+    // Wait for the keyboard and the lifted layout to settle, then bring the field to the upper part of the visible area.
+    setTimeout(() => {
+      const inner = sv.getInnerViewRef?.();
+      if (!inner) return;
+      view.measureLayout(inner as never, (_x, y) => sv.scrollTo({ y: Math.max(0, y - 90), animated: true }), () => {});
+    }, 300);
+  };
+  const open = lift > 0;
   return (
-    <View style={{ marginBottom: 14 }}>
+    <KeyboardContext.Provider value={{ keyboard: lift, reveal }}>
+      <View ref={box} collapsable={false} style={[{ flex: 1, backgroundColor: colors.ground }, style]}>
+        <View style={{ flex: 1, paddingBottom: lift }}>
+          {open ? null : header}
+          <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" {...scrollProps} contentContainerStyle={scrollStyle}>
+            {children}
+          </ScrollView>
+          {open ? null : footer}
+        </View>
+      </View>
+    </KeyboardContext.Provider>
+  );
+}
+
+export function Field({ label, hint, ...props }: TextInputProps & { label: string; hint?: string }) {
+  const { reveal } = useContext(KeyboardContext);
+  const box = useRef<ComponentRef<typeof View>>(null);
+  return (
+    <View ref={box} collapsable={false} style={{ marginBottom: 14 }}>
       <Text style={[type.label, { marginBottom: 6, color: colors.gold }]}>{label}</Text>
-      <TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.placeholder} style={styles.input} autoCorrect={false} selectionColor={colors.foil} />
+      <TextInput {...props} onFocus={(e) => { reveal(box.current); props.onFocus?.(e); }} accessibilityLabel={label} placeholderTextColor={colors.placeholder} style={styles.input} autoCorrect={false} selectionColor={colors.foil} />
       {hint ? <Text style={styles.hint}>{hint}</Text> : null}
     </View>
   );

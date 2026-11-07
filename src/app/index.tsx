@@ -39,7 +39,7 @@ export default function Home() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingTop: insets.top + 16, paddingBottom: 32 }}>
+    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingTop: insets.top + 16, paddingBottom: 32 + insets.bottom }}>
       <View style={{ alignItems: 'center' }}>
         <SealMark size={132} />
         <Wordmark size={28} style={{ marginTop: 8 }}>{brand.name}</Wordmark>

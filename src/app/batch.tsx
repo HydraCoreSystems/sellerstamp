@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlatList, Image, Linking, Text, View } from 'react-native';
 import { BATCH, HONESTY } from '../core/copy';
 import { hasWork, resumeBlocked, runBatch, startBatch, stampedUris, summarize, type BatchItem } from '../core/queue';
@@ -34,6 +35,7 @@ const STATUS_WORDS = { waiting: BATCH.waiting, working: BATCH.working, done: BAT
 
 export default function Batch() {
   const app = useApp();
+  const insets = useSafeAreaInsets();
   const session = useSession();
   const [save, setSave] = useState<SaveState>({ kind: 'idle' });
   const [shareOk, setShareOk] = useState(false);
@@ -123,7 +125,7 @@ export default function Batch() {
 
   if (items.length === 0) {
     return (
-      <View style={{ flex: 1, padding: SCREEN_PAD, justifyContent: 'center' }}>
+      <View style={{ flex: 1, padding: SCREEN_PAD, paddingBottom: SCREEN_PAD + insets.bottom, justifyContent: 'center' }}>
         <SealMark size={96} style={{ alignSelf: 'center', marginBottom: 16, opacity: 0.6 }} />
         <Button title={BATCH.stampAnother} onPress={more} />
       </View>
@@ -163,7 +165,7 @@ export default function Batch() {
 
       <FlatList data={items} keyExtractor={(x) => x.id} renderItem={renderItem} contentContainerStyle={{ paddingHorizontal: SCREEN_PAD }} extraData={session.running} />
 
-      <View style={[{ padding: 16, borderTopWidth: 1, borderTopColor: colors.rule, backgroundColor: colors.panel }, shadow.bar]}>
+      <View style={[{ padding: 16, paddingBottom: 16 + insets.bottom, borderTopWidth: 1, borderTopColor: colors.rule, backgroundColor: colors.panel }, shadow.bar]}>
         {save.kind === 'saved' ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.panelHi, borderWidth: 1, borderColor: colors.rule, borderRadius: 6, padding: 12, marginBottom: 10 }}>
             <Text style={{ fontFamily: face.bold, fontSize: 16, color: colors.foil, marginRight: 8 }}>{'\u2713'}</Text>

@@ -1,7 +1,8 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, Linking, ScrollView, Text, View } from 'react-native';
+import { Alert, Image, Linking, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import brand from '../core/brand.json';
 import { CORNER_NAMES, SETTINGS, STRENGTH_NAMES, STUDIO, STYLE_NAMES, STYLE_NOTES, leftLine, stampsLine } from '../core/copy';
 import { CORNERS, STRENGTHS, STYLES, withStyle } from '../core/design';
@@ -9,10 +10,11 @@ import { LIMITS } from '../core/text';
 import { useApp } from '../lib/app';
 import { iapAvailable, manage, restore } from '../lib/iap';
 import { useSampleStamp } from '../lib/useSampleStamp';
-import { Button, Chip, Field, Row, SCREEN_PAD, Section, TintCard, colors, type } from '../ui/kit';
+import { Button, Chip, Field, KeyboardScreen, Row, SCREEN_PAD, Section, TintCard, colors, type } from '../ui/kit';
 
 export default function Settings() {
   const app = useApp();
+  const insets = useSafeAreaInsets();
   const [note, setNote] = useState<string | null>(null);
   const p = app.profile;
   const d = app.design;
@@ -29,7 +31,7 @@ export default function Settings() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+    <KeyboardScreen scrollStyle={{ padding: SCREEN_PAD, paddingBottom: 48 + insets.bottom }}>
       <Section title={SETTINGS.profile}>
         <Field label={SETTINGS.sellerName} value={p.sellerName} maxLength={LIMITS.sellerName} onChangeText={(t) => app.saveProfile({ ...p, sellerName: t })} />
         <Field label={SETTINGS.roomName} value={p.roomName} maxLength={LIMITS.roomName} onChangeText={(t) => app.saveProfile({ ...p, roomName: t })} />
@@ -97,6 +99,6 @@ export default function Settings() {
       </TintCard>
 
       <Text style={[type.small, { textAlign: 'center' }]}>{`${SETTINGS.version} ${Constants.expoConfig?.version ?? ''}`}</Text>
-    </ScrollView>
+    </KeyboardScreen>
   );
 }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image, Linking, ScrollView, Text, View } from 'react-native';
 import { PAYWALL, TERMS_URL } from '../core/copy';
 import { PLAN_ANNUAL, PLAN_LIFETIME, PLAN_MONTHLY, planLine, type PlanProduct } from '../core/entitlement';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../lib/app';
 import { buy, iapAvailable, loadPlans, restore } from '../lib/iap';
 import { useSampleStamp } from '../lib/useSampleStamp';
@@ -16,6 +17,7 @@ const NAMES: Record<string, string> = { [PLAN_ANNUAL]: PAYWALL.annual, [PLAN_MON
  */
 export default function Paywall() {
   const app = useApp();
+  const insets = useSafeAreaInsets();
   const [plans, setPlans] = useState<PlanProduct[] | null>(null);
   const [down, setDown] = useState(false);
   const [working, setWorking] = useState(false);
@@ -71,7 +73,7 @@ export default function Paywall() {
   );
 
   return (
-    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingBottom: 40 }}>
+    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingBottom: 40 + insets.bottom }}>
       <View style={{ alignItems: 'center' }}>
         <SealMark size={96} />
         <Wordmark size={22} style={{ marginTop: 6, textAlign: 'center' }}>{PAYWALL.title}</Wordmark>

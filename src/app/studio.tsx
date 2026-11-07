@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NO_ADJUST, NUDGE_STEP, SCALE_STEP, isAdjusted, nudge, type PhotoAdjust } from '../core/adjust';
 import { CORNER_NAMES, FONT_NAMES, STRENGTH_NAMES, STUDIO, STYLE_NAMES, STYLE_NOTES, leftLine, HONESTY } from '../core/copy';
 import {
@@ -26,7 +27,7 @@ import { chooseLogo, deleteLogo, logoUri } from '../lib/logo';
 import { useSampleStamp } from '../lib/useSampleStamp';
 import { discardStamped, makeSamplePhoto, stampPhoto } from '../lib/stampPhoto';
 import { getSession, setSession, useSession } from '../lib/session';
-import { Button, Chip, Field, RoundButton, Row, Section, Slider, Spinner, Swatches, Toggle, colors, face, shadow, type } from '../ui/kit';
+import { Button, Chip, Field, KeyboardScreen, RoundButton, Row, Section, Slider, Spinner, Swatches, Toggle, colors, face, shadow, type } from '../ui/kit';
 
 /** One miniature of a style: the seller's own words, colors and font on the sample plant. */
 function StyleTile({ style, draft, profile, selected, onPick, onFail }: { style: StyleId; draft: StampDesign; profile: SellerProfile; selected: boolean; onPick: () => void; onFail: () => void }) {
@@ -58,6 +59,7 @@ function StyleTile({ style, draft, profile, selected, onPick, onFail }: { style:
 
 export default function Studio() {
   const app = useApp();
+  const insets = useSafeAreaInsets();
   const session = useSession();
   const photos = session.photos;
   const hasPhotos = photos.length > 0;
@@ -165,10 +167,9 @@ export default function Studio() {
   const repeating = draft.style === 'across' || draft.style === 'tiled' || draft.style === 'waxSeal';
   const cornerStyle = draft.style === 'corner' || draft.style === 'badge' || draft.style === 'waxSeal';
 
-  return (
-    <View style={{ flex: 1 }}>
-      <View style={[{ height: 300, margin: 16, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
-        {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: photos.length > 1 ? 248 : '100%', marginBottom: photos.length > 1 ? 52 : 0 }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
+  const previewPanel = (
+      <View style={[{ height: 236, margin: 16, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
+        {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: photos.length > 1 ? 184 : '100%', marginBottom: photos.length > 1 ? 52 : 0 }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
         {busy ? <Spinner style={{ position: 'absolute', top: 12, right: 12 }} /> : null}
         {failed ? <Text style={[type.body, { color: colors.danger, padding: 16 }]}>{STUDIO.previewFailed}</Text> : null}
         {hasPhotos && photos.length > 1 ? (
@@ -181,8 +182,17 @@ export default function Studio() {
           </>
         ) : null}
       </View>
+  );
 
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 12, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
+  const bar = hasPhotos ? (
+    <View style={[{ padding: 16, paddingBottom: 16 + insets.bottom, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: colors.rule }, shadow.bar]}>
+      <Text style={[type.small, { marginBottom: 6, textAlign: 'center' }]}>{leftLine(app.unlimited ? Infinity : app.left)}</Text>
+      <Button title={`${STUDIO.start} (${photos.length})`} onPress={start} />
+    </View>
+  ) : null;
+
+  return (
+    <KeyboardScreen header={previewPanel} footer={bar} scrollStyle={{ padding: 20, paddingTop: 12, paddingBottom: 28 }}>
         <Section title={STUDIO.designs}>
           <Row style={{ flexWrap: 'wrap' }}>
             {app.library.designs.map((d) => (
@@ -319,14 +329,6 @@ export default function Studio() {
         ) : null}
 
         <Text style={type.small}>{HONESTY}</Text>
-      </ScrollView>
-
-      {hasPhotos ? (
-        <View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: colors.rule }, shadow.bar]}>
-          <Text style={[type.small, { marginBottom: 6, textAlign: 'center' }]}>{leftLine(app.unlimited ? Infinity : app.left)}</Text>
-          <Button title={`${STUDIO.start} (${photos.length})`} onPress={start} />
-        </View>
-      ) : null}
-    </View>
+    </KeyboardScreen>
   );
 }

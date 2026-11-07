@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FIRST_RUN, HONESTY } from '../core/copy';
 import { newDesign } from '../core/design';
 import { LIMITS, toDay } from '../core/text';
@@ -8,7 +9,7 @@ import { useApp } from '../lib/app';
 import { stampPhoto } from '../lib/stampPhoto';
 import { sampleUri } from '../lib/useSampleStamp';
 import brand from '../core/brand.json';
-import { Button, Field, Panel, Rule, SealMark, Spinner, Wordmark, colors, shadow, type } from '../ui/kit';
+import { Button, Field, KeyboardScreen, Panel, Rule, SealMark, Spinner, Wordmark, colors, shadow, type } from '../ui/kit';
 
 function Dots({ step }: { step: number }) {
   return (
@@ -23,6 +24,7 @@ function Dots({ step }: { step: number }) {
 /** Name, room, a sample stamp, done. No account and no login. */
 export default function Welcome() {
   const app = useApp();
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState(0);
   const [name, setName] = useState(app.profile.sellerName);
   const [room, setRoom] = useState(app.profile.roomName);
@@ -56,8 +58,7 @@ export default function Welcome() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.ground }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64 }} keyboardShouldPersistTaps="handled">
+    <KeyboardScreen scrollStyle={{ padding: 20, paddingTop: insets.top + 24, paddingBottom: 24 + insets.bottom }}>
         <SealMark size={step === 2 ? 84 : 132} style={{ alignSelf: 'center' }} />
         <Wordmark size={24} style={{ marginTop: 6 }}>{brand.name}</Wordmark>
         <Rule style={{ marginVertical: 12 }} />
@@ -92,7 +93,6 @@ export default function Welcome() {
             <Button title={FIRST_RUN.done} onPress={finish} />
           </>
         ) : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardScreen>
   );
 }
