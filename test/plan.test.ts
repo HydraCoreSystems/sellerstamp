@@ -20,7 +20,8 @@ function plan(d: StampDesign, w = 1200, h = 900, opts: { adjust?: PhotoAdjust; p
 const rects = (ops: Op[]) => ops.filter((o): o is RectOp => o.kind === 'rect');
 const texts = (ops: Op[]) => ops.filter((o): o is TextOp => o.kind === 'text');
 const logos = (ops: Op[]) => ops.filter((o): o is LogoOp => o.kind === 'logo');
-const base = newDesign('a', profile);
+// The band tests describe a band design as saved by the earlier build (white on moss), which must keep working untouched.
+const base: StampDesign = { ...newDesign('a', profile, 'bandBottom'), font: 'clean', textColor: '#FFFFFF', bandColor: '#22483A' };
 
 describe('the band, as in the Skrybix stamp', () => {
   it('sits on the bottom edge, full width, in moss at medium strength', () => {

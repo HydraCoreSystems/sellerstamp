@@ -17,6 +17,7 @@ export const HONESTY =
   'A stamp discourages casual copying, and it puts your name on the photo wherever it travels. It does not make copying impossible.';
 
 export const STYLE_NAMES: Record<StyleId, string> = {
+  waxSeal: 'Wax Seal',
   bandBottom: 'Bottom band',
   bandTop: 'Top band',
   across: 'Across',
@@ -27,6 +28,7 @@ export const STYLE_NAMES: Record<StyleId, string> = {
 
 /** What each style does, said plainly, including what a crop can do to it. */
 export const STYLE_NOTES: Record<StyleId, string> = {
+  waxSeal: 'A round wax seal with your name around the rim and your room along the bottom. It stands out and is easy to spot. A crop can remove it, and someone willing to work at it can paint it over.',
   bandBottom: 'A slim band along the bottom edge. It reads clearly and stays clear of your goods. A crop can cut it off.',
   bandTop: 'The same band along the top edge. A crop can cut it off.',
   across: 'Your name repeated in rows across the whole photo. A crop leaves marks behind. Someone willing to work at it can still paint it over.',

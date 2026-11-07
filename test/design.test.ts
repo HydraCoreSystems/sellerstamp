@@ -23,11 +23,11 @@ import type { SellerProfile } from '../src/core/profile';
 const profile: SellerProfile = { sellerName: 'Fern Hollow', roomName: 'Hoya Hangout', sellerNumber: '', secondLine: '' };
 
 describe('a new design', () => {
-  it('starts as the Skrybix band: bottom, white on a medium moss band, no date, no badge, no logo', () => {
+  it('starts as the Wax Seal: gold words on wax red, no date, no badge, no logo', () => {
     const d = newDesign('a', profile);
-    expect(d.style).toBe('bandBottom');
-    expect(d.textColor).toBe('#FFFFFF');
-    expect(d.bandColor).toBe('#22483A');
+    expect(d.style).toBe('waxSeal');
+    expect(d.textColor).toBe('#E3C878');
+    expect(d.bandColor).toBe('#7E1F26');
     expect(d.strength).toBe('medium');
     expect(BAND_ALPHA.medium).toBe(0.55);
     expect(BAND_ALPHA.light).toBe(0.3);
@@ -43,11 +43,13 @@ describe('a new design', () => {
     expect(styleDefaults('across')).toMatchObject({ angle: -30, opacity: 0.3 });
     expect(styleDefaults('tiled').opacity).toBeLessThan(0.5);
     expect(styleDefaults('bandBottom')).toEqual({ size: 1, spacing: 1, opacity: 1, angle: 0 });
-    expect(withStyle(newDesign('a', profile), 'across')).toMatchObject({ style: 'across', angle: -30, opacity: 0.3, font: 'clean' });
+    expect(styleDefaults('waxSeal')).toEqual({ size: 1, spacing: 1, opacity: 1, angle: 0 });
+    expect(withStyle(newDesign('a', profile), 'across')).toMatchObject({ style: 'across', angle: -30, opacity: 0.3, font: 'classic' });
   });
 
-  it('offers all six styles from the ruling', () => {
-    expect([...STYLES].sort()).toEqual(['across', 'badge', 'bandBottom', 'bandTop', 'corner', 'tiled']);
+  it('offers all seven styles, the Wax Seal first', () => {
+    expect(STYLES[0]).toBe('waxSeal');
+    expect([...STYLES].sort()).toEqual(['across', 'badge', 'bandBottom', 'bandTop', 'corner', 'tiled', 'waxSeal']);
   });
 });
 
@@ -62,9 +64,9 @@ describe('reading a saved design', () => {
   it('ignores junk and clamps every slider to its range', () => {
     expect(readDesign(null, base)).toEqual(base);
     const r = readDesign({ style: 'wild', font: 9, textColor: 'red', size: 99, spacing: -4, opacity: 7, angle: 1000, strength: 'heavy' }, base);
-    expect(r.style).toBe('bandBottom');
-    expect(r.font).toBe('clean');
-    expect(r.textColor).toBe('#FFFFFF');
+    expect(r.style).toBe('waxSeal');
+    expect(r.font).toBe('classic');
+    expect(r.textColor).toBe('#E3C878');
     expect(r.size).toBe(RANGES.size.max);
     expect(r.spacing).toBe(RANGES.spacing.min);
     expect(r.opacity).toBe(RANGES.opacity.max);

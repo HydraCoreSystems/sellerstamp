@@ -10,19 +10,17 @@ import { canShare, sharePhoto } from '../lib/share';
 import { stampPhoto } from '../lib/stampPhoto';
 import { clearSession, getSession, setSession, useSession } from '../lib/session';
 import { emitReceipt } from '../core/receipt';
-import { Button, Row, SCREEN_PAD, Spinner, colors, face, shadow, type } from '../ui/kit';
-
-const ICON = require('../../assets/icon.png');
+import { Button, Row, SCREEN_PAD, SealMark, Spinner, colors, face, shadow, type } from '../ui/kit';
 
 /** The small disc at the left of each row: a check, an exclamation, a dot, or the spinner while working. */
 function StatusDisc({ status }: { status: BatchItem['status'] }) {
   if (status === 'working') return <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}><Spinner /></View>;
   const look =
     status === 'done'
-      ? { bg: colors.sageTint, fg: colors.mossDeep, glyph: '\u2713', size: 13 }
+      ? { bg: colors.foil, fg: colors.ground, glyph: '\u2713', size: 13 }
       : status === 'failed'
-        ? { bg: colors.danger, fg: colors.card, glyph: '!', size: 14 }
-        : { bg: colors.line, fg: colors.inkSoft, glyph: '\u2022', size: 14 };
+        ? { bg: colors.danger, fg: colors.ivory, glyph: '!', size: 14 }
+        : { bg: colors.panelHi, fg: colors.gold, glyph: '\u2022', size: 14 };
   return (
     <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: look.bg, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
       <Text style={{ fontFamily: face.bold, fontSize: look.size, color: look.fg }}>{look.glyph}</Text>
@@ -126,19 +124,19 @@ export default function Batch() {
   if (items.length === 0) {
     return (
       <View style={{ flex: 1, padding: SCREEN_PAD, justifyContent: 'center' }}>
-        <Image source={ICON} style={{ width: 64, height: 64, borderRadius: 16, opacity: 0.4, alignSelf: 'center', marginBottom: 16 }} />
+        <SealMark size={96} style={{ alignSelf: 'center', marginBottom: 16, opacity: 0.6 }} />
         <Button title={BATCH.stampAnother} onPress={more} />
       </View>
     );
   }
 
   const renderItem = ({ item }: { item: BatchItem }) => (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-      <Image source={{ uri: item.outputUri ?? item.sourceUri }} style={{ width: 60, height: 60, borderRadius: 10, backgroundColor: colors.line, marginRight: 12 }} />
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.ruleSoft }}>
+      <Image source={{ uri: item.outputUri ?? item.sourceUri }} style={{ width: 60, height: 60, borderRadius: 4, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.panelHi, marginRight: 12 }} />
       <View style={{ flex: 1 }}>
         <Row>
           <StatusDisc status={item.status} />
-          <Text style={[type.bodySemi, { color: item.status === 'failed' ? colors.danger : item.status === 'done' ? colors.moss : colors.ink }]}>{STATUS_WORDS[item.status]}</Text>
+          <Text style={[type.bodySemi, { color: item.status === 'failed' ? colors.danger : item.status === 'done' ? colors.foil : colors.ivory }]}>{STATUS_WORDS[item.status]}</Text>
         </Row>
         {item.error ? <Text style={[type.small, { color: colors.danger }]}>{item.error}</Text> : null}
       </View>
@@ -151,8 +149,8 @@ export default function Batch() {
     <View style={{ flex: 1 }}>
       <View style={{ padding: SCREEN_PAD, paddingBottom: 12 }}>
         <Text style={type.title}>{BATCH.progress(sum.done, sum.total)}</Text>
-        <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.line, marginTop: 10, overflow: 'hidden' }}>
-          <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.terracotta, width: `${sum.total ? Math.round((sum.done / sum.total) * 100) : 0}%` }} />
+        <View style={{ height: 8, borderRadius: 2, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.panel, marginTop: 10, overflow: 'hidden' }}>
+          <View style={{ height: 6, borderRadius: 2, backgroundColor: colors.foil, width: `${sum.total ? Math.round((sum.done / sum.total) * 100) : 0}%` }} />
         </View>
         {sum.failed > 0 ? <Text style={[type.body, { color: colors.danger, marginTop: 8 }]}>{BATCH.failedCount(sum.failed)}</Text> : null}
         {sum.blocked > 0 ? (
@@ -165,16 +163,16 @@ export default function Batch() {
 
       <FlatList data={items} keyExtractor={(x) => x.id} renderItem={renderItem} contentContainerStyle={{ paddingHorizontal: SCREEN_PAD }} extraData={session.running} />
 
-      <View style={[{ padding: 16, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.card }, shadow.bar]}>
+      <View style={[{ padding: 16, borderTopWidth: 1, borderTopColor: colors.rule, backgroundColor: colors.panel }, shadow.bar]}>
         {save.kind === 'saved' ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.sageTint, borderRadius: 14, padding: 12, marginBottom: 10 }}>
-            <Text style={{ fontFamily: face.bold, fontSize: 16, color: colors.mossDeep, marginRight: 8 }}>{'\u2713'}</Text>
-            <Text style={[type.bodySemi, { color: colors.mossDeep }]}>{BATCH.saved}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.panelHi, borderWidth: 1, borderColor: colors.rule, borderRadius: 6, padding: 12, marginBottom: 10 }}>
+            <Text style={{ fontFamily: face.bold, fontSize: 16, color: colors.foil, marginRight: 8 }}>{'\u2713'}</Text>
+            <Text style={[type.bodySemi, { color: colors.foil }]}>{BATCH.saved}</Text>
           </View>
         ) : null}
         {save.kind === 'partial' ? (
-          <View style={{ backgroundColor: colors.terracottaTint, borderRadius: 14, padding: 12, marginBottom: 10 }}>
-            <Text style={[type.body, { color: colors.ink, textAlign: 'center' }]}>{BATCH.partial}</Text>
+          <View style={{ backgroundColor: colors.panelHi, borderWidth: 1, borderColor: colors.warn, borderRadius: 6, padding: 12, marginBottom: 10 }}>
+            <Text style={[type.body, { color: colors.ivory, textAlign: 'center' }]}>{BATCH.partial}</Text>
           </View>
         ) : null}
         {save.kind === 'denied' ? (

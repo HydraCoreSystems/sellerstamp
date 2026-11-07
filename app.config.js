@@ -8,8 +8,14 @@ module.exports = () => ({
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
-  userInterfaceStyle: 'light',
+  userInterfaceStyle: 'dark',
+  backgroundColor: '#1C0708',
   scheme: brand.scheme,
+  android: {
+    package: brand.bundleId,
+    adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#1C0708' },
+  },
+  web: { favicon: './assets/favicon.png' },
   ios: {
     supportsTablet: false,
     bundleIdentifier: brand.bundleId,
@@ -22,6 +28,7 @@ module.exports = () => ({
   },
   plugins: [
     'expo-router',
+    ['expo-splash-screen', { image: './assets/splash-icon.png', imageWidth: 240, resizeMode: 'contain', backgroundColor: '#1C0708' }],
     'expo-sqlite',
     'expo-sharing',
     'expo-secure-store',

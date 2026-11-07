@@ -1,89 +1,115 @@
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Switch, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
+import { Image, Platform, Pressable, ActivityIndicator, StyleSheet, Switch, Text, TextInput, View, type ImageStyle, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
 
+/** Wax and gold: oxblood ground, antique gold rules, foil gold for the one main action, ivory words. */
 export const colors = {
-  paper: '#F6EFE2',
-  card: '#FFFDF6',
-  ink: '#2C211A',
-  inkSoft: '#756455',
-  line: '#E2D3B8',
-  moss: '#22483A',
-  mossDeep: '#183529',
-  terracotta: '#C05B36',
-  terracottaTint: '#F7E7D9',
-  sageTint: '#E3EBD9',
-  gold: '#D9A441',
-  danger: '#B3261E',
-  warn: '#96660A',
-  placeholder: '#A08B74',
-  stage: '#E9E2D2',
+  ground: '#1C0708',
+  panel: '#2E0D0E',
+  panelHi: '#40161A',
+  ivory: '#F3E9D2',
+  gold: '#C6A15B',
+  foil: '#E3C878',
+  foilDeep: '#C9AD5E',
+  wax: '#7E1F26',
+  waxHi: '#8A2432',
+  rule: 'rgba(198,161,91,0.45)',
+  ruleSoft: 'rgba(198,161,91,0.22)',
+  scrim: 'rgba(28,7,8,0.88)',
+  danger: '#F0897B',
+  warn: '#E0A458',
+  placeholder: '#8C7650',
+  stage: '#120405',
 };
 
 /** The two faces the interface is set in. Loaded once in the root layout. */
 export const FONT_FILES = {
-  'Fraunces-SemiBold': require('../../assets/fonts/FrauncesSemiBold.ttf'),
-  'Fraunces-Bold': require('../../assets/fonts/FrauncesBold.ttf'),
+  'Cinzel-SemiBold': require('../../assets/fonts/CinzelSemiBold.ttf'),
+  'Cinzel-Bold': require('../../assets/fonts/CinzelBold.ttf'),
   'SourceSans3-Regular': require('../../assets/fonts/SourceSans3Regular.ttf'),
   'SourceSans3-SemiBold': require('../../assets/fonts/SourceSans3SemiBold.ttf'),
   'SourceSans3-Bold': require('../../assets/fonts/SourceSans3Bold.ttf'),
 };
 
 export const face = {
-  display: 'Fraunces-Bold',
-  displaySemi: 'Fraunces-SemiBold',
+  display: 'Cinzel-Bold',
+  displaySemi: 'Cinzel-SemiBold',
   regular: 'SourceSans3-Regular',
   semi: 'SourceSans3-SemiBold',
   bold: 'SourceSans3-Bold',
 };
 
-/** Text styles. Colors are set at the call site. */
+/** Text styles. Headings, the wordmark and buttons are letterspaced capitals, set at render time so the words stay as written. */
 export const type = {
-  display: { fontFamily: face.display, fontSize: 30, lineHeight: 36, letterSpacing: -0.3, color: colors.ink } as TextStyle,
-  title: { fontFamily: face.display, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: colors.ink } as TextStyle,
-  cardTitle: { fontFamily: face.displaySemi, fontSize: 18, lineHeight: 24, color: colors.ink } as TextStyle,
-  body: { fontFamily: face.regular, fontSize: 16, lineHeight: 23, color: colors.ink } as TextStyle,
-  bodySemi: { fontFamily: face.semi, fontSize: 16, lineHeight: 23, color: colors.ink } as TextStyle,
-  secondary: { fontFamily: face.regular, fontSize: 14, lineHeight: 20, color: colors.inkSoft } as TextStyle,
-  small: { fontFamily: face.regular, fontSize: 13, lineHeight: 18, color: colors.inkSoft } as TextStyle,
-  label: { fontFamily: face.semi, fontSize: 14, lineHeight: 20, color: colors.ink } as TextStyle,
-  button: { fontFamily: face.bold, fontSize: 16, lineHeight: 22 } as TextStyle,
-  chip: { fontFamily: face.semi, fontSize: 14, lineHeight: 20, color: colors.ink } as TextStyle,
+  display: { fontFamily: face.display, fontSize: 26, lineHeight: 34, letterSpacing: 3, textTransform: 'uppercase', color: colors.ivory } as TextStyle,
+  title: { fontFamily: face.display, fontSize: 20, lineHeight: 27, letterSpacing: 2.5, textTransform: 'uppercase', color: colors.ivory } as TextStyle,
+  cardTitle: { fontFamily: face.displaySemi, fontSize: 15, lineHeight: 22, letterSpacing: 2, textTransform: 'uppercase', color: colors.foil } as TextStyle,
+  body: { fontFamily: face.regular, fontSize: 16, lineHeight: 23, color: colors.ivory } as TextStyle,
+  bodySemi: { fontFamily: face.semi, fontSize: 16, lineHeight: 23, color: colors.ivory } as TextStyle,
+  secondary: { fontFamily: face.regular, fontSize: 14, lineHeight: 20, color: colors.gold } as TextStyle,
+  small: { fontFamily: face.regular, fontSize: 13, lineHeight: 18, color: colors.gold } as TextStyle,
+  label: { fontFamily: face.semi, fontSize: 14, lineHeight: 20, color: colors.ivory } as TextStyle,
+  button: { fontFamily: face.display, fontSize: 14, lineHeight: 20, letterSpacing: 2, textTransform: 'uppercase' } as TextStyle,
+  chip: { fontFamily: face.semi, fontSize: 14, lineHeight: 20, color: colors.ivory } as TextStyle,
 };
 
 export const SCREEN_PAD = 20;
 
 export const shadow = {
   card: Platform.select<ViewStyle>({
-    ios: { shadowColor: colors.ink, shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
-    default: { elevation: 2, shadowColor: colors.ink },
-  }) as ViewStyle,
-  primary: Platform.select<ViewStyle>({
-    ios: { shadowColor: colors.mossDeep, shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
-    default: { elevation: 3, shadowColor: colors.mossDeep },
+    ios: { shadowColor: '#000000', shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+    default: { elevation: 3, shadowColor: '#000000' },
   }) as ViewStyle,
   bar: Platform.select<ViewStyle>({
-    ios: { shadowColor: colors.ink, shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: -3 } },
-    default: { elevation: 6, shadowColor: colors.ink },
+    ios: { shadowColor: '#000000', shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: -3 } },
+    default: { elevation: 6, shadowColor: '#000000' },
   }) as ViewStyle,
 };
 
-export const SWATCHES = ['#22483A', '#C05B36', '#A9704B', '#FFFFFF', '#000000', '#F5EBD7', '#FFD54A', '#FF9F43', '#E74C3C', '#F78FB3', '#8E5CD9', '#3B82F6', '#2A9D8F', '#3E7A4B', '#8A93A6'];
+/** Wax red and foil lead the list, then the rest. */
+export const SWATCHES = ['#7E1F26', '#8A2432', '#E3C878', '#C6A15B', '#F3E9D2', '#FFFFFF', '#000000', '#F5EBD7', '#FFD54A', '#FF9F43', '#E74C3C', '#F78FB3', '#8E5CD9', '#3B82F6', '#2A9D8F', '#3E7A4B', '#8A93A6'];
 
-/** The busy indicator, always in Moss. */
-export function Spinner({ style }: { style?: StyleProp<ViewStyle> }) {
-  return <ActivityIndicator color={colors.moss} style={style} />;
+const MARK = require('../../assets/seal-mark.png');
+
+/** The engraved seal, the brand mark. */
+export function SealMark({ size = 120, style }: { size?: number; style?: StyleProp<ImageStyle> }) {
+  return <Image source={MARK} accessibilityLabel="Seal" style={[{ width: size, height: size }, style]} resizeMode="contain" />;
 }
 
-/** The on/off switch, in Moss on both platforms. */
+/** The brand name in letterspaced foil capitals. */
+export function Wordmark({ children, size = 28, style }: { children: string; size?: number; style?: StyleProp<TextStyle> }) {
+  return (
+    <Text style={[{ fontFamily: face.display, fontSize: size, lineHeight: size * 1.3, letterSpacing: size * 0.28, textTransform: 'uppercase', color: colors.foil, textAlign: 'center' }, style]}>
+      {children}
+    </Text>
+  );
+}
+
+/** A thin gold rule with a small diamond in the middle. */
+export function Rule({ style }: { style?: StyleProp<ViewStyle> }) {
+  return (
+    <View style={[{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }, style]}>
+      <View style={{ flex: 1, height: 1, backgroundColor: colors.rule }} />
+      <View style={{ width: 7, height: 7, marginHorizontal: 10, backgroundColor: colors.gold, transform: [{ rotate: '45deg' }] }} />
+      <View style={{ flex: 1, height: 1, backgroundColor: colors.rule }} />
+    </View>
+  );
+}
+
+/** The busy indicator, in foil gold. */
+export function Spinner({ style }: { style?: StyleProp<ViewStyle> }) {
+  return <ActivityIndicator color={colors.foil} style={style} />;
+}
+
+/** The on/off switch, in gold on both platforms. */
 export function Toggle({ value, onValueChange, label }: { value: boolean; onValueChange: (v: boolean) => void; label: string }) {
   return (
     <Switch
       accessibilityLabel={label}
       value={value}
       onValueChange={onValueChange}
-      trackColor={{ false: colors.line, true: colors.moss }}
-      ios_backgroundColor={colors.line}
-      thumbColor={colors.card}
+      trackColor={{ false: colors.panelHi, true: colors.gold }}
+      ios_backgroundColor={colors.panelHi}
+      thumbColor={value ? colors.foil : colors.ivory}
     />
   );
 }
@@ -109,13 +135,13 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         kind === 'quiet' ? styles.quiet : styles.button,
-        kind === 'primary' && [shadow.primary, { backgroundColor: pressed ? colors.mossDeep : colors.moss, borderColor: pressed ? colors.mossDeep : colors.moss }],
-        kind === 'secondary' && { backgroundColor: colors.card, borderColor: colors.line },
-        { opacity: disabled ? 0.45 : 1 },
+        kind === 'primary' && { backgroundColor: pressed ? colors.foilDeep : colors.foil, borderColor: pressed ? colors.foilDeep : colors.foil },
+        kind === 'secondary' && { backgroundColor: pressed ? colors.panel : 'transparent', borderColor: colors.gold },
+        { opacity: disabled ? 0.4 : 1 },
         style,
       ]}
     >
-      <Text style={kind === 'quiet' ? styles.quietText : [type.button, { color: kind === 'primary' ? colors.card : colors.moss }]}>{title}</Text>
+      <Text style={kind === 'quiet' ? styles.quietText : [type.button, { color: kind === 'primary' ? colors.ground : colors.foil }]}>{title}</Text>
     </Pressable>
   );
 }
@@ -126,9 +152,9 @@ export function Chip({ title, active, onPress }: { title: string; active?: boole
       accessibilityRole="button"
       accessibilityState={{ selected: !!active }}
       onPress={onPress}
-      style={[styles.chip, active && { backgroundColor: colors.moss, borderColor: colors.moss }]}
+      style={[styles.chip, active && { backgroundColor: colors.foil, borderColor: colors.foil }]}
     >
-      <Text style={[type.chip, active && { color: colors.card }]}>{title}</Text>
+      <Text style={[type.chip, active && { color: colors.ground, fontFamily: face.bold }]}>{title}</Text>
     </Pressable>
   );
 }
@@ -137,6 +163,7 @@ export function Section({ title, children, hint, style }: { title: string; child
   return (
     <View style={[styles.section, shadow.card, style]}>
       <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={{ height: 1, backgroundColor: colors.rule, marginBottom: 12 }} />
       {hint ? <Text style={styles.hint}>{hint}</Text> : null}
       {children}
     </View>
@@ -148,11 +175,11 @@ export function Panel({ children, style }: { children: ReactNode; style?: StyleP
   return <View style={[styles.panel, shadow.card, style]}>{children}</View>;
 }
 
-/** The soft green card the honesty words sit in. */
+/** The framed card the honesty words sit in. */
 export function TintCard({ title, children, style }: { title?: string; children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return (
-    <View style={[{ backgroundColor: colors.sageTint, borderRadius: 14, padding: 14 }, style]}>
-      {title ? <Text style={[type.label, { color: colors.mossDeep, marginBottom: 4 }]}>{title}</Text> : null}
+    <View style={[{ borderWidth: 1, borderColor: colors.rule, borderRadius: 8, padding: 14 }, style]}>
+      {title ? <Text style={[type.cardTitle, { fontSize: 13, marginBottom: 6 }]}>{title}</Text> : null}
       {children}
     </View>
   );
@@ -165,23 +192,23 @@ export function Row({ children, style }: { children: ReactNode; style?: StylePro
 export function Field({ label, hint, ...props }: TextInputProps & { label: string; hint?: string }) {
   return (
     <View style={{ marginBottom: 14 }}>
-      <Text style={[type.label, { marginBottom: 6 }]}>{label}</Text>
-      <TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.placeholder} style={styles.input} autoCorrect={false} />
+      <Text style={[type.label, { marginBottom: 6, color: colors.gold }]}>{label}</Text>
+      <TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.placeholder} style={styles.input} autoCorrect={false} selectionColor={colors.foil} />
       {hint ? <Text style={styles.hint}>{hint}</Text> : null}
     </View>
   );
 }
 
-/** A round button with a glyph, for the arrows. */
-export function RoundButton({ glyph, label, onPress, size = 44, fill = colors.sageTint, style }: { glyph: string; label: string; onPress: () => void; size?: number; fill?: string; style?: StyleProp<ViewStyle> }) {
+/** A small square button with a glyph, for the arrows. */
+export function RoundButton({ glyph, label, onPress, size = 44, fill = colors.panelHi, style }: { glyph: string; label: string; onPress: () => void; size?: number; fill?: string; style?: StyleProp<ViewStyle> }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => [{ width: size, height: size, borderRadius: size / 2, backgroundColor: fill, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1 }, style]}
+      style={({ pressed }) => [{ width: size, height: size, borderRadius: 8, backgroundColor: fill, borderWidth: 1, borderColor: colors.rule, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1 }, style]}
     >
-      <Text style={{ fontFamily: face.bold, fontSize: size >= 44 ? 20 : 22, color: colors.moss }}>{glyph}</Text>
+      <Text style={{ fontFamily: face.bold, fontSize: size >= 44 ? 20 : 22, color: colors.foil }}>{glyph}</Text>
     </Pressable>
   );
 }
@@ -259,7 +286,7 @@ export function Swatches({ label, value, onChange }: { label: string; value: str
               accessibilityLabel={`${label} ${c}`}
               accessibilityState={{ selected: on }}
               onPress={() => onChange(c)}
-              style={[styles.swatchRing, on && { borderColor: colors.terracotta }]}
+              style={[styles.swatchRing, on && { borderColor: colors.foil }]}
             >
               <View style={[styles.swatch, { backgroundColor: c }]} />
             </Pressable>
@@ -271,22 +298,22 @@ export function Swatches({ label, value, onChange }: { label: string; value: str
 }
 
 const styles = StyleSheet.create({
-  button: { minHeight: 52, borderRadius: 14, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  button: { minHeight: 52, borderRadius: 6, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   quiet: { paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
-  quietText: { fontFamily: face.semi, fontSize: 15, lineHeight: 20, color: colors.moss },
-  chip: { paddingHorizontal: 16, minHeight: 40, borderRadius: 20, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginRight: 8, marginBottom: 8 },
-  section: { backgroundColor: colors.card, borderRadius: 18, padding: 18, marginBottom: 14 },
-  panel: { backgroundColor: colors.card, borderRadius: 18, marginBottom: 14, overflow: 'hidden' },
-  sectionTitle: { ...type.cardTitle, marginBottom: 12 },
+  quietText: { fontFamily: face.displaySemi, fontSize: 12, lineHeight: 18, letterSpacing: 1.5, textTransform: 'uppercase', color: colors.gold },
+  chip: { paddingHorizontal: 14, minHeight: 40, borderRadius: 6, borderWidth: 1, borderColor: colors.rule, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center', marginRight: 8, marginBottom: 8 },
+  section: { backgroundColor: colors.panel, borderRadius: 8, borderWidth: 1, borderColor: colors.ruleSoft, padding: 18, marginBottom: 14 },
+  panel: { backgroundColor: colors.panel, borderRadius: 8, borderWidth: 1, borderColor: colors.ruleSoft, marginBottom: 14, overflow: 'hidden' },
+  sectionTitle: { ...type.cardTitle, marginBottom: 10 },
   hint: { ...type.secondary, marginTop: 2, marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center' },
-  input: { borderWidth: 1, borderColor: colors.line, borderRadius: 12, paddingHorizontal: 14, minHeight: 50, fontFamily: face.regular, fontSize: 16, color: colors.ink, backgroundColor: 'rgba(246,239,226,0.6)' },
-  step: { minWidth: 52, height: 36, borderRadius: 18, paddingHorizontal: 10, backgroundColor: colors.sageTint, alignItems: 'center', justifyContent: 'center' },
-  stepText: { fontFamily: face.semi, fontSize: 12, color: colors.moss },
-  base: { position: 'absolute', left: 0, right: 0, height: 6, borderRadius: 3, backgroundColor: colors.line },
-  track: { flex: 1, height: 40, marginHorizontal: 8, justifyContent: 'center' },
-  fill: { position: 'absolute', left: 0, height: 6, borderRadius: 3, backgroundColor: colors.terracotta },
-  knob: { position: 'absolute', width: 26, height: 26, borderRadius: 13, marginLeft: -13, backgroundColor: '#FFFFFF', borderWidth: 3, borderColor: colors.terracotta },
-  swatchRing: { width: 46, height: 46, borderRadius: 23, borderWidth: 3, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center', marginRight: 2, marginBottom: 4 },
-  swatch: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.line },
+  input: { borderWidth: 1, borderColor: colors.rule, borderRadius: 6, paddingHorizontal: 14, minHeight: 50, fontFamily: face.regular, fontSize: 16, color: colors.ivory, backgroundColor: 'rgba(0,0,0,0.28)' },
+  step: { minWidth: 52, height: 34, borderRadius: 6, borderWidth: 1, borderColor: colors.rule, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
+  stepText: { fontFamily: face.semi, fontSize: 12, color: colors.foil },
+  base: { position: 'absolute', left: 0, right: 0, height: 2, backgroundColor: colors.rule },
+  track: { flex: 1, height: 40, marginHorizontal: 10, justifyContent: 'center' },
+  fill: { position: 'absolute', left: 0, height: 2, backgroundColor: colors.foil },
+  knob: { position: 'absolute', width: 22, height: 22, borderRadius: 11, marginLeft: -11, backgroundColor: colors.foil, borderWidth: 3, borderColor: colors.ground },
+  swatchRing: { width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center', marginRight: 2, marginBottom: 4 },
+  swatch: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.rule },
 });

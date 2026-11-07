@@ -49,6 +49,22 @@ function run(canvas: SkCanvas, ops: Op[], logo: LoadedLogo | null) {
       edge.setStyle(PaintStyle.Stroke);
       edge.setStrokeWidth(op.strokeWidth);
       canvas.drawCircle(op.cx, op.cy, op.r, edge);
+    } else if (op.kind === 'poly') {
+      const builder = Skia.PathBuilder.Make();
+      for (let n = 0; n + 1 < op.points.length; n += 2) {
+        if (n === 0) builder.moveTo(op.points[0], op.points[1]);
+        else builder.lineTo(op.points[n], op.points[n + 1]);
+      }
+      if (op.close) builder.close();
+      const path = builder.build();
+      if (op.fill) canvas.drawPath(path, paint(op.fill, op.fillAlpha));
+      if (op.stroke && op.strokeWidth > 0) {
+        const edge = paint(op.stroke, op.strokeAlpha);
+        edge.setStyle(PaintStyle.Stroke);
+        edge.setStrokeWidth(op.strokeWidth);
+        edge.setStrokeCap(1);
+        canvas.drawPath(path, edge);
+      }
     } else if (op.kind === 'text') {
       const font = fontFor(op.font, op.bold, op.size);
       canvas.save();

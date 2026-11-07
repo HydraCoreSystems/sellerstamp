@@ -8,9 +8,7 @@ import { useApp } from '../lib/app';
 import { takePhoto, pickPhotos, type PickResult } from '../lib/pick';
 import { startSession } from '../lib/session';
 import { useSampleStamp } from '../lib/useSampleStamp';
-import { Button, Chip, Panel, Row, Section, TintCard, SCREEN_PAD, colors, face, type } from '../ui/kit';
-
-const ICON = require('../../assets/icon.png');
+import { Button, Chip, Panel, Row, Rule, SealMark, Section, TintCard, Wordmark, SCREEN_PAD, colors, face, shadow, type } from '../ui/kit';
 const OK = 'OK';
 
 export default function Home() {
@@ -42,35 +40,36 @@ export default function Home() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingTop: insets.top + 16, paddingBottom: 32 }}>
-      <Row style={{ marginBottom: 18 }}>
-        <Image source={ICON} style={{ width: 36, height: 36, borderRadius: 9, marginRight: 10 }} accessibilityLabel={brand.name} />
-        <View>
-          <Text style={{ fontFamily: face.display, fontSize: 22, lineHeight: 26, color: colors.ink }}>{brand.name}</Text>
-          <Text style={type.secondary}>{app.unlimited ? stampsLine(app.counter.used, true) : leftLine(app.left)}</Text>
-        </View>
-      </Row>
+      <View style={{ alignItems: 'center' }}>
+        <SealMark size={132} />
+        <Wordmark size={28} style={{ marginTop: 8 }}>{brand.name}</Wordmark>
+        <Text style={{ fontFamily: face.regular, fontSize: 14, letterSpacing: 3, color: colors.ivory, marginTop: 8 }}>
+          {app.unlimited ? stampsLine(app.counter.used, true) : leftLine(app.left)}
+        </Text>
+      </View>
+      <Rule />
 
       <Pressable accessibilityRole="button" accessibilityLabel={HOME.editDesign} onPress={() => router.push('/studio')}>
-        <Panel>
-          <View style={{ height: 190, backgroundColor: colors.stage }}>
+        <View style={[{ borderWidth: 1, borderColor: colors.rule, borderRadius: 8, padding: 8, marginBottom: 16 }, shadow.card]}>
+          <View style={{ height: 190, backgroundColor: colors.stage, borderRadius: 6, overflow: 'hidden' }}>
             {hero.uri ? <Image source={{ uri: hero.uri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} /> : null}
-            <View style={{ position: 'absolute', left: 12, bottom: 12, backgroundColor: 'rgba(24,53,41,0.88)', borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12, maxWidth: '80%' }}>
-              <Text style={[type.label, { color: colors.card }]} numberOfLines={1}>
+            <View style={{ position: 'absolute', left: 10, top: 10, backgroundColor: colors.scrim, borderRadius: 6, borderWidth: 1, borderColor: colors.rule, paddingVertical: 5, paddingHorizontal: 10, maxWidth: '70%' }}>
+              <Text style={[type.label, { color: colors.foil }]} numberOfLines={1}>
                 {app.design.label}
               </Text>
               {room && room !== app.design.label ? (
-                <Text style={[type.small, { color: colors.card }]} numberOfLines={1}>
+                <Text style={[type.small, { color: colors.ivory }]} numberOfLines={1}>
                   {room}
                 </Text>
               ) : null}
             </View>
           </View>
-        </Panel>
+        </View>
       </Pressable>
 
       <Button title={HOME.pick} onPress={() => void go(pickPhotos)} disabled={busy} style={{ marginBottom: 12 }} />
       <Button title={HOME.camera} kind="secondary" onPress={() => void go(takePhoto)} disabled={busy} />
-      <Text style={[type.small, { marginTop: 10, marginBottom: 20 }]}>{HOME.pickHint}</Text>
+      <Text style={[type.small, { marginTop: 10, marginBottom: 20, textAlign: 'center' }]}>{HOME.pickHint}</Text>
 
       <Section title={HOME.designs}>
         <Row style={{ flexWrap: 'wrap' }}>
@@ -85,16 +84,16 @@ export default function Home() {
         <Panel style={{ padding: 18 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}>
-              <Text style={type.bodySemi}>{HOME.settings}</Text>
+              <Text style={[type.cardTitle, { fontSize: 14 }]}>{HOME.settings}</Text>
               <Text style={type.secondary}>{HOME.settingsHint}</Text>
             </View>
-            <Text style={{ fontFamily: face.bold, fontSize: 24, color: colors.inkSoft }}>{'›'}</Text>
+            <Text style={{ fontFamily: face.bold, fontSize: 24, color: colors.gold }}>{'\u203A'}</Text>
           </Row>
         </Panel>
       </Pressable>
 
       <TintCard title={SETTINGS.honestyTitle}>
-        <Text style={[type.small, { color: colors.ink }]}>{HONESTY}</Text>
+        <Text style={[type.small, { color: colors.ivory }]}>{HONESTY}</Text>
       </TintCard>
     </ScrollView>
   );

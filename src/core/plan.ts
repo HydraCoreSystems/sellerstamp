@@ -8,6 +8,7 @@
  */
 import { clampAdjust, NO_ADJUST, type PhotoAdjust } from './adjust';
 import { BAND_ALPHA, type Corner, type FontId, type StampDesign } from './design';
+import { buildSeal } from './seal';
 import type { StampText } from './text';
 
 /** Width of a piece of text at a size, in the given font. The phone measures; tests pass a stand in. */
@@ -66,7 +67,19 @@ export interface LogoOp {
   angle: number;
 }
 
-export type Op = RectOp | TextOp | CircleOp | LogoOp;
+/** A closed or open shape from points, for the irregular wax edge and the leaves. Points are x, y pairs. */
+export interface PolyOp {
+  kind: 'poly';
+  points: number[];
+  close: boolean;
+  fill: string | null;
+  fillAlpha: number;
+  stroke: string | null;
+  strokeAlpha: number;
+  strokeWidth: number;
+}
+
+export type Op = RectOp | TextOp | CircleOp | LogoOp | PolyOp;
 
 export interface PlanInput {
   width: number;
@@ -336,6 +349,8 @@ export function buildPlan(i: PlanInput): Op[] {
   const adj = clampAdjust(i.adjust ?? NO_ADJUST);
   const unit = Math.min(w, h);
   switch (d.style) {
+    case 'waxSeal':
+      return buildSeal(i);
     case 'bandBottom':
     case 'bandTop': {
       const b = band(i);

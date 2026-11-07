@@ -12,14 +12,14 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
   return (
     <AppProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerTintColor: colors.moss,
-          headerTitleStyle: { fontFamily: face.display, fontSize: 18 },
-          headerStyle: { backgroundColor: colors.paper },
+          headerTintColor: colors.foil,
+          headerTitleStyle: { fontFamily: face.display, fontSize: 15 },
+          headerStyle: { backgroundColor: colors.ground },
           headerShadowVisible: false,
-          contentStyle: { backgroundColor: colors.paper },
+          contentStyle: { backgroundColor: colors.ground },
         }}
       >
         <Stack.Screen name="index" options={{ title: HOME.title, headerShown: false }} />

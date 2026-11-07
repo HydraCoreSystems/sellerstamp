@@ -93,7 +93,7 @@ export default function Settings() {
       </Section>
 
       <TintCard title={SETTINGS.honestyTitle} style={{ marginBottom: 14 }}>
-        <Text style={[type.small, { color: colors.ink }]}>{SETTINGS.honesty}</Text>
+        <Text style={[type.small, { color: colors.ivory }]}>{SETTINGS.honesty}</Text>
       </TintCard>
 
       <Text style={[type.small, { textAlign: 'center' }]}>{`${SETTINGS.version} ${Constants.expoConfig?.version ?? ''}`}</Text>

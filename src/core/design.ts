@@ -6,13 +6,13 @@
 import type { SellerProfile } from './profile';
 import { LIMITS, clip } from './text';
 
-export type StyleId = 'bandBottom' | 'bandTop' | 'across' | 'corner' | 'tiled' | 'badge';
+export type StyleId = 'waxSeal' | 'bandBottom' | 'bandTop' | 'across' | 'corner' | 'tiled' | 'badge';
 export type FontId = 'clean' | 'classic' | 'book' | 'modern' | 'display' | 'typewriter' | 'friendly' | 'mono';
 export type Strength = 'light' | 'medium' | 'strong';
 export type Corner = 'tl' | 'tr' | 'bl' | 'br';
 export type LogoMode = 'off' | 'beside' | 'alone';
 
-export const STYLES: StyleId[] = ['bandBottom', 'bandTop', 'across', 'corner', 'tiled', 'badge'];
+export const STYLES: StyleId[] = ['waxSeal', 'bandBottom', 'bandTop', 'across', 'corner', 'tiled', 'badge'];
 export const FONTS: FontId[] = ['clean', 'classic', 'book', 'modern', 'display', 'typewriter', 'friendly', 'mono'];
 export const STRENGTHS: Strength[] = ['light', 'medium', 'strong'];
 export const CORNERS: Corner[] = ['tl', 'tr', 'bl', 'br'];
@@ -58,7 +58,7 @@ export interface StampDesign {
   spacing: number;
   /** How solid the words are. */
   opacity: number;
-  /** Degrees. Used by the across and tiled styles. */
+  /** Degrees. Used by the across, tiled and wax seal styles. */
   angle: number;
   showDate: boolean;
   /** Replaces the whole main line when not blank. */
@@ -86,17 +86,18 @@ export function styleDefaults(style: StyleId): Feel {
   }
 }
 
-export function newDesign(id: string, profile: SellerProfile, style: StyleId = 'bandBottom'): StampDesign {
+export function newDesign(id: string, profile: SellerProfile, style: StyleId = 'waxSeal'): StampDesign {
   const room = profile.roomName.trim();
   return {
     id,
     label: clip(room || 'My stamp', LIMITS.designLabel),
     roomName: room,
     style,
-    font: 'clean',
+    font: 'classic',
     bold: true,
-    textColor: '#FFFFFF',
-    bandColor: '#22483A',
+    // Foil gold words on wax red. The Wax Seal fills with the second color and letters with the first.
+    textColor: '#E3C878',
+    bandColor: '#7E1F26',
     strength: 'medium',
     ...styleDefaults(style),
     showDate: false,

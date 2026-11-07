@@ -42,16 +42,16 @@ function StyleTile({ style, draft, profile, selected, onPick, onFail }: { style:
       onPress={onPick}
       style={{ width: '48%', marginBottom: 12 }}
     >
-      <View style={{ height: 104, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.card, borderWidth: selected ? 2 : 1, borderColor: selected ? colors.terracotta : colors.line }}>
+      <View style={{ height: 104, borderRadius: 6, overflow: 'hidden', backgroundColor: colors.panel, borderWidth: selected ? 2 : 1, borderColor: selected ? colors.foil : colors.rule }}>
         {mini.uri ? (
           <Image source={{ uri: mini.uri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
         ) : (
-          <View style={{ flex: 1, backgroundColor: colors.sageTint, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ flex: 1, backgroundColor: colors.panelHi, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={type.small}>{STYLE_NAMES[style]}</Text>
           </View>
         )}
       </View>
-      <Text style={[type.chip, { fontSize: 13, marginTop: 6, color: selected ? colors.mossDeep : colors.ink }]}>{STYLE_NAMES[style]}</Text>
+      <Text style={[type.chip, { fontSize: 13, marginTop: 6, color: selected ? colors.foil : colors.ivory }]}>{STYLE_NAMES[style]}</Text>
     </Pressable>
   );
 }
@@ -162,22 +162,22 @@ export default function Studio() {
   };
 
   const sampleLine = draft.customText.trim() || [app.profile.sellerName, draft.roomName || app.profile.roomName].filter(Boolean).join('  \u00B7  ');
-  const repeating = draft.style === 'across' || draft.style === 'tiled';
-  const cornerStyle = draft.style === 'corner' || draft.style === 'badge';
+  const repeating = draft.style === 'across' || draft.style === 'tiled' || draft.style === 'waxSeal';
+  const cornerStyle = draft.style === 'corner' || draft.style === 'badge' || draft.style === 'waxSeal';
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={[{ height: 300, margin: 16, marginBottom: 8, borderRadius: 20, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
+      <View style={[{ height: 300, margin: 16, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
         {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: photos.length > 1 ? 248 : '100%', marginBottom: photos.length > 1 ? 52 : 0 }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
         {busy ? <Spinner style={{ position: 'absolute', top: 12, right: 12 }} /> : null}
         {failed ? <Text style={[type.body, { color: colors.danger, padding: 16 }]}>{STUDIO.previewFailed}</Text> : null}
         {hasPhotos && photos.length > 1 ? (
           <>
-            <RoundButton glyph={'\u2039'} label={STUDIO.previous} size={40} fill={colors.card} onPress={() => setIdx((n) => Math.max(0, n - 1))} style={{ position: 'absolute', left: 10, bottom: 10, opacity: idx === 0 ? 0.4 : 1 }} />
-            <View style={{ position: 'absolute', bottom: 10, alignSelf: 'center', backgroundColor: 'rgba(24,53,41,0.88)', borderRadius: 14, paddingVertical: 6, paddingHorizontal: 12 }}>
-              <Text style={{ fontFamily: face.semi, fontSize: 13, color: colors.card }}>{STUDIO.photoOf(idx + 1, photos.length)}</Text>
+            <RoundButton glyph={'\u2039'} label={STUDIO.previous} size={40} fill={colors.panelHi} onPress={() => setIdx((n) => Math.max(0, n - 1))} style={{ position: 'absolute', left: 10, bottom: 10, opacity: idx === 0 ? 0.4 : 1 }} />
+            <View style={{ position: 'absolute', bottom: 10, alignSelf: 'center', backgroundColor: colors.scrim, borderWidth: 1, borderColor: colors.rule, borderRadius: 6, paddingVertical: 6, paddingHorizontal: 12 }}>
+              <Text style={{ fontFamily: face.semi, fontSize: 13, color: colors.ivory }}>{STUDIO.photoOf(idx + 1, photos.length)}</Text>
             </View>
-            <RoundButton glyph={'\u203A'} label={STUDIO.next} size={40} fill={colors.card} onPress={() => setIdx((n) => Math.min(photos.length - 1, n + 1))} style={{ position: 'absolute', right: 10, bottom: 10, opacity: idx >= photos.length - 1 ? 0.4 : 1 }} />
+            <RoundButton glyph={'\u203A'} label={STUDIO.next} size={40} fill={colors.panelHi} onPress={() => setIdx((n) => Math.min(photos.length - 1, n + 1))} style={{ position: 'absolute', right: 10, bottom: 10, opacity: idx >= photos.length - 1 ? 0.4 : 1 }} />
           </>
         ) : null}
       </View>
@@ -230,7 +230,7 @@ export default function Studio() {
               <Chip key={f} title={FONT_NAMES[f]} active={draft.font === f} onPress={() => update({ font: f })} />
             ))}
           </Row>
-          <Text style={{ fontSize: 20, color: colors.ink, marginBottom: 14, fontWeight: draft.bold ? '700' : '400' }} numberOfLines={1}>
+          <Text style={{ fontSize: 20, color: colors.ivory, marginBottom: 14, fontWeight: draft.bold ? '700' : '400' }} numberOfLines={1}>
             {sampleLine}
           </Text>
           <Row style={{ justifyContent: 'space-between', marginBottom: 14 }}>
@@ -271,7 +271,7 @@ export default function Studio() {
             <Chip title={STUDIO.logoAlone} active={draft.logoMode === 'alone'} onPress={() => draft.logoFile && update({ logoMode: 'alone' })} />
           </Row>
           <Row>
-            {draft.logoFile ? <Image source={{ uri: logoUri(draft.logoFile) }} resizeMode="contain" style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: colors.paper, marginRight: 10 }} accessibilityLabel={STUDIO.logo} /> : null}
+            {draft.logoFile ? <Image source={{ uri: logoUri(draft.logoFile) }} resizeMode="contain" style={{ width: 44, height: 44, borderRadius: 4, borderWidth: 1, borderColor: colors.rule, backgroundColor: colors.panelHi, marginRight: 10 }} accessibilityLabel={STUDIO.logo} /> : null}
             <Button title={STUDIO.logoChoose} kind="secondary" onPress={() => void pickLogo()} style={{ marginRight: 8 }} />
             {draft.logoFile ? <Button title={STUDIO.logoRemove} kind="quiet" onPress={removeLogo} /> : null}
           </Row>
@@ -322,7 +322,7 @@ export default function Studio() {
       </ScrollView>
 
       {hasPhotos ? (
-        <View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.line }, shadow.bar]}>
+        <View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: colors.rule }, shadow.bar]}>
           <Text style={[type.small, { marginBottom: 6, textAlign: 'center' }]}>{leftLine(app.unlimited ? Infinity : app.left)}</Text>
           <Button title={`${STUDIO.start} (${photos.length})`} onPress={start} />
         </View>

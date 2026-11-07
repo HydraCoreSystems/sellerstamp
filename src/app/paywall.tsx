@@ -6,7 +6,7 @@ import { PLAN_ANNUAL, PLAN_LIFETIME, PLAN_MONTHLY, planLine, type PlanProduct } 
 import { useApp } from '../lib/app';
 import { buy, iapAvailable, loadPlans, restore } from '../lib/iap';
 import { useSampleStamp } from '../lib/useSampleStamp';
-import { Button, Panel, Row, SCREEN_PAD, Section, Spinner, colors, face, type } from '../ui/kit';
+import { Button, Panel, Row, Rule, SCREEN_PAD, SealMark, Section, Spinner, Wordmark, colors, face, type } from '../ui/kit';
 
 const NAMES: Record<string, string> = { [PLAN_ANNUAL]: PAYWALL.annual, [PLAN_MONTHLY]: PAYWALL.monthly, [PLAN_LIFETIME]: PAYWALL.lifetime };
 
@@ -65,18 +65,22 @@ export default function Paywall() {
 
   const tick = (text: string) => (
     <Row style={{ alignItems: 'flex-start', marginBottom: 8 }}>
-      <Text style={{ fontFamily: face.bold, fontSize: 16, lineHeight: 23, color: colors.moss, width: 24 }}>{'\u2713'}</Text>
+      <Text style={{ fontFamily: face.bold, fontSize: 16, lineHeight: 23, color: colors.foil, width: 24 }}>{'\u2713'}</Text>
       <Text style={[type.body, { flex: 1 }]}>{text}</Text>
     </Row>
   );
 
   return (
     <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingBottom: 40 }}>
-      <Text style={{ fontFamily: face.display, fontSize: 26, lineHeight: 32, letterSpacing: -0.3, color: colors.ink, marginBottom: 12 }}>{PAYWALL.title}</Text>
-      <View style={{ height: 120, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.stage, marginBottom: 14 }}>
+      <View style={{ alignItems: 'center' }}>
+        <SealMark size={96} />
+        <Wordmark size={22} style={{ marginTop: 6, textAlign: 'center' }}>{PAYWALL.title}</Wordmark>
+      </View>
+      <Rule />
+      <View style={{ height: 120, borderRadius: 6, borderWidth: 1, borderColor: colors.rule, overflow: 'hidden', backgroundColor: colors.stage, marginBottom: 14 }}>
         {strip.uri ? <Image source={{ uri: strip.uri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} /> : null}
       </View>
-      <Text style={[type.body, { color: colors.inkSoft, marginBottom: 12 }]}>{PAYWALL.body}</Text>
+      <Text style={[type.body, { color: colors.gold, marginBottom: 12 }]}>{PAYWALL.body}</Text>
       {tick(PAYWALL.everything)}
       {tick(PAYWALL.kept)}
       <View style={{ height: 8 }} />
@@ -90,14 +94,14 @@ export default function Paywall() {
       {plans?.map((p) => {
         const lifetime = p.id === PLAN_LIFETIME;
         return (
-          <Panel key={p.id} style={[{ padding: 18 }, lifetime && { borderWidth: 2, borderColor: colors.gold }]}>
+          <Panel key={p.id} style={[{ padding: 18 }, lifetime && { borderWidth: 1, borderColor: colors.foil }]}>
             {lifetime ? (
-              <View style={{ alignSelf: 'flex-start', backgroundColor: colors.gold, borderRadius: 10, paddingVertical: 4, paddingHorizontal: 10, marginBottom: 8 }}>
-                <Text style={{ fontFamily: face.bold, fontSize: 12, color: colors.ink }}>{PAYWALL.payOnce}</Text>
+              <View style={{ alignSelf: 'flex-start', backgroundColor: colors.wax, borderWidth: 1, borderColor: colors.gold, borderRadius: 4, paddingVertical: 4, paddingHorizontal: 10, marginBottom: 8 }}>
+                <Text style={{ fontFamily: face.bold, fontSize: 12, letterSpacing: 1.5, color: colors.foil }}>{PAYWALL.payOnce.toUpperCase()}</Text>
               </View>
             ) : null}
             <Text style={[type.cardTitle, { marginBottom: 6 }]}>{NAMES[p.id] ?? p.id}</Text>
-            <Text style={{ fontFamily: face.semi, fontSize: 17, lineHeight: 24, color: colors.ink, marginBottom: 12 }}>{planLine(p)}</Text>
+            <Text style={{ fontFamily: face.semi, fontSize: 17, lineHeight: 24, color: colors.ivory, marginBottom: 12 }}>{planLine(p)}</Text>
             <Button title={PAYWALL.buy} kind={lifetime ? 'primary' : 'secondary'} onPress={() => void choose(p.id)} disabled={working} />
           </Panel>
         );
@@ -108,7 +112,7 @@ export default function Paywall() {
 
       <View style={{ marginTop: 16 }}>
         {PAYWALL.terms.map((t) => (
-          <Text key={t} style={{ fontFamily: face.regular, fontSize: 11, color: colors.inkSoft, lineHeight: 16, marginBottom: 4 }}>{t}</Text>
+          <Text key={t} style={{ fontFamily: face.regular, fontSize: 11, color: colors.gold, lineHeight: 16, marginBottom: 4 }}>{t}</Text>
         ))}
         <Button title={PAYWALL.termsLink} kind="quiet" onPress={() => void Linking.openURL(TERMS_URL)} />
       </View>
