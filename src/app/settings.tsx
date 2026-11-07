@@ -16,7 +16,7 @@ export default function Settings() {
   const [note, setNote] = useState<string | null>(null);
   const p = app.profile;
   const d = app.design;
-  const strip = useSampleStamp(d, p, { maxSide: 700 });
+  const strip = useSampleStamp(d, p, { maxSide: 700, frame: [1200, 420] });
 
   const doRestore = async () => {
     try {

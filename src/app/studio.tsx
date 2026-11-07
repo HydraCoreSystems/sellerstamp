@@ -30,7 +30,7 @@ import { Button, Chip, Field, RoundButton, Row, Section, Slider, Spinner, Swatch
 
 /** One miniature of a style: the seller's own words, colors and font on the sample plant. */
 function StyleTile({ style, draft, profile, selected, onPick, onFail }: { style: StyleId; draft: StampDesign; profile: SellerProfile; selected: boolean; onPick: () => void; onFail: () => void }) {
-  const mini = useSampleStamp(withStyle(draft, style), profile, { maxSide: 360, delay: 400 });
+  const mini = useSampleStamp(withStyle(draft, style), profile, { maxSide: 420, delay: 400, frame: [1200, 830] });
   useEffect(() => {
     if (mini.failed) onFail();
   }, [mini.failed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -168,7 +168,7 @@ export default function Studio() {
   return (
     <View style={{ flex: 1 }}>
       <View style={[{ height: 300, margin: 16, marginBottom: 8, borderRadius: 20, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
-        {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: '100%' }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
+        {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: photos.length > 1 ? 248 : '100%', marginBottom: photos.length > 1 ? 52 : 0 }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
         {busy ? <Spinner style={{ position: 'absolute', top: 12, right: 12 }} /> : null}
         {failed ? <Text style={[type.body, { color: colors.danger, padding: 16 }]}>{STUDIO.previewFailed}</Text> : null}
         {hasPhotos && photos.length > 1 ? (

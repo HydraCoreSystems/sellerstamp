@@ -17,7 +17,8 @@ export default function Home() {
   const app = useApp();
   const insets = useSafeAreaInsets();
   const [busy, setBusy] = useState(false);
-  const hero = useSampleStamp(app.design, app.profile, { maxSide: 800 });
+  const hero = useSampleStamp(app.design, app.profile, { maxSide: 800, frame: [1200, 650] });
+  const room = app.design.roomName || app.profile.roomName;
   if (!app.ready) return <Redirect href="/welcome" />;
 
   const go = async (get: () => Promise<PickResult>) => {
@@ -57,9 +58,9 @@ export default function Home() {
               <Text style={[type.label, { color: colors.card }]} numberOfLines={1}>
                 {app.design.label}
               </Text>
-              {app.design.roomName || app.profile.roomName ? (
+              {room && room !== app.design.label ? (
                 <Text style={[type.small, { color: colors.card }]} numberOfLines={1}>
-                  {app.design.roomName || app.profile.roomName}
+                  {room}
                 </Text>
               ) : null}
             </View>

@@ -19,7 +19,7 @@ export default function Paywall() {
   const [plans, setPlans] = useState<PlanProduct[] | null>(null);
   const [down, setDown] = useState(false);
   const [working, setWorking] = useState(false);
-  const strip = useSampleStamp(app.design, app.profile, { maxSide: 800 });
+  const strip = useSampleStamp(app.design, app.profile, { maxSide: 800, frame: [1200, 410] });
 
   const load = useCallback(() => {
     setDown(false);

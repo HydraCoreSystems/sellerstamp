@@ -130,55 +130,72 @@ export function discardStamped(uri: string | null): void {
   }
 }
 
-/** A flat sample photo of a potted plant, so a seller sees a stamp before they pick anything. */
-export function makeSamplePhoto(): string {
-  const w = 1200;
-  const h = 900;
-  const surface = Skia.Surface.Make(w, h);
-  if (!surface) throw new Error('Could not make the sample photo');
-  const canvas = surface.getCanvas();
+const LEAVES: [number, number, number, number, number][] = [
+  // [dx, dy, length, width, angle in degrees], all as shares of a 1200 by 900 scene
+  [-0.2, -0.26, 0.17, 0.075, -35],
+  [-0.12, -0.34, 0.16, 0.07, -60],
+  [0, -0.38, 0.15, 0.07, -90],
+  [0.12, -0.34, 0.16, 0.07, -120],
+  [0.2, -0.26, 0.17, 0.075, -145],
+  [-0.26, -0.15, 0.14, 0.06, -10],
+  [0.26, -0.15, 0.14, 0.06, -170],
+  [-0.06, -0.2, 0.13, 0.06, -75],
+  [0.07, -0.21, 0.13, 0.06, -105],
+];
+
+/** Draws the sample plant scene. The plant keeps its shape and is centered, so a wide frame just shows more table and sky. */
+function drawScene(canvas: SkCanvas, w: number, h: number) {
   const fill = (color: string, alpha = 1) => paint(color, alpha);
   canvas.drawRect(Skia.XYWHRect(0, 0, w, h), fill('#DCE9DC'));
   canvas.drawRect(Skia.XYWHRect(0, h * 0.62, w, h * 0.38), fill('#A97C50'));
+  const s = h / 900;
+  canvas.save();
+  canvas.translate((w - 1200 * s) / 2, 0);
+  canvas.scale(s, s);
+  const W = 1200;
+  const H = 900;
   // A soft shadow under the pot.
-  canvas.drawOval(Skia.XYWHRect(w * 0.32, h * 0.635, w * 0.36, h * 0.07), fill('#000000', 0.18));
-  // Stems rise from the pot, then the leaves go on top of them.
+  canvas.drawOval(Skia.XYWHRect(W * 0.32, H * 0.635, W * 0.36, H * 0.07), fill('#000000', 0.18));
+  // Stems rise from the pot to the larger leaves, then the leaves go on top of them.
   const stem = fill('#2F6B3C');
   stem.setStyle(PaintStyle.Stroke);
   stem.setStrokeWidth(10);
   stem.setStrokeCap(1);
-  const stems: [number, number][] = [[-0.16, 0.16], [-0.09, 0.08], [0, 0.05], [0.1, 0.1], [0.17, 0.17], [-0.03, 0.2]];
-  const base = { x: w * 0.5, y: h * 0.45 };
-  for (const [dx, up] of stems) canvas.drawLine(base.x, base.y, w * (0.5 + dx), h * (0.45 - up - 0.08), stem);
+  for (const [dx, dy] of LEAVES.slice(0, 7)) canvas.drawLine(W * 0.5, H * 0.45, W * (0.5 + dx * 0.9), H * (0.45 + dy * 0.78 + 0.03), stem);
   const greens = ['#2F6B3C', '#3E7A4B', '#6FA05E'];
-  // [dx, dy, length, width, angle in degrees]
-  const leaves: [number, number, number, number, number][] = [
-    [-0.2, -0.26, 0.17, 0.075, -35],
-    [-0.12, -0.34, 0.16, 0.07, -60],
-    [0, -0.4, 0.15, 0.07, -90],
-    [0.12, -0.34, 0.16, 0.07, -120],
-    [0.2, -0.26, 0.17, 0.075, -145],
-    [-0.26, -0.15, 0.14, 0.06, -10],
-    [0.26, -0.15, 0.14, 0.06, -170],
-    [-0.06, -0.2, 0.13, 0.06, -75],
-    [0.07, -0.21, 0.13, 0.06, -105],
-  ];
-  leaves.forEach(([dx, dy, len, wid, deg], i) => {
+  LEAVES.forEach(([dx, dy, len, wid, deg], i) => {
     canvas.save();
-    canvas.translate(w * (0.5 + dx), h * (0.45 + dy));
+    canvas.translate(W * (0.5 + dx), H * (0.45 + dy * 0.78));
     canvas.rotate(deg, 0, 0);
-    canvas.drawOval(Skia.XYWHRect(-w * len * 0.5, -h * wid * 0.5, w * len, h * wid), fill(greens[i % 3]));
+    canvas.drawOval(Skia.XYWHRect(-W * len * 0.5, -H * wid * 0.5, W * len, H * wid), fill(greens[i % 3]));
     canvas.restore();
   });
   // The pot: body, rim band, and a thin highlight under the rim.
-  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(w * 0.385, h * 0.44, w * 0.23, h * 0.215), 22, 22), fill('#BC6242'));
-  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(w * 0.37, h * 0.42, w * 0.26, h * 0.05), 12, 12), fill('#A5522F'));
-  canvas.drawRect(Skia.XYWHRect(w * 0.385, h * 0.478, w * 0.23, 5), fill('#D08A63'));
+  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(W * 0.385, H * 0.44, W * 0.23, H * 0.215), 22, 22), fill('#BC6242'));
+  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(W * 0.37, H * 0.42, W * 0.26, H * 0.05), 12, 12), fill('#A5522F'));
+  canvas.drawRect(Skia.XYWHRect(W * 0.385, H * 0.478, W * 0.23, 5), fill('#D08A63'));
+  canvas.restore();
+}
+
+function writeSample(name: string, w: number, h: number): string {
+  const surface = Skia.Surface.Make(w, h);
+  if (!surface) throw new Error('Could not make the sample photo');
+  drawScene(surface.getCanvas(), w, h);
   surface.flush();
   const bytes = surface.makeImageSnapshot().encodeToBytes(ImageFormat.JPEG, 92);
   const dir = new Directory(Paths.cache, 'stamped');
   if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
-  const out = new File(dir, 'sample.jpg');
+  const out = new File(dir, name);
   out.writeSync(bytes);
   return out.uri;
+}
+
+/** A flat sample photo of a potted plant, so a seller sees a stamp before they pick anything. */
+export function makeSamplePhoto(): string {
+  return writeSample('sample.jpg', 1200, 900);
+}
+
+/** The same plant in a wider or shorter frame, for strips and cards that show the stamp without cropping it off. */
+export function makeSampleFrame(w: number, h: number): string {
+  return writeSample(`sample_${w}x${h}.jpg`, w, h);
 }

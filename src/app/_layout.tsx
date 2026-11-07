@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { STUDIO, BATCH, HOME, PAYWALL, SETTINGS } from '../core/copy';
+import { STUDIO, BATCH, HOME, SETTINGS } from '../core/copy';
 import { AppProvider } from '../lib/app';
 import { FONT_FILES, colors, face } from '../ui/kit';
 
@@ -27,7 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="studio" options={{ title: STUDIO.title }} />
         <Stack.Screen name="batch" options={{ title: BATCH.title }} />
         <Stack.Screen name="settings" options={{ title: SETTINGS.title }} />
-        <Stack.Screen name="paywall" options={{ presentation: 'modal', title: PAYWALL.title }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'modal', title: '' }} />
       </Stack>
     </AppProvider>
   );
