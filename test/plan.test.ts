@@ -23,13 +23,13 @@ const logos = (ops: Op[]) => ops.filter((o): o is LogoOp => o.kind === 'logo');
 const base = newDesign('a', profile);
 
 describe('the band, as in the Skrybix stamp', () => {
-  it('sits on the bottom edge, full width, in black at medium strength', () => {
+  it('sits on the bottom edge, full width, in moss at medium strength', () => {
     const ops = plan(base);
     const [band] = rects(ops);
     expect(band.x).toBe(0);
     expect(band.w).toBe(1200);
     expect(band.y + band.h).toBe(900);
-    expect(band.color).toBe('#000000');
+    expect(band.color).toBe('#22483A');
     expect(band.alpha).toBe(0.55);
   });
 

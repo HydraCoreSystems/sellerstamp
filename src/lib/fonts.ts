@@ -19,6 +19,18 @@ const FAMILIES: Record<FontId, string> = {
   mono: 'Courier New',
 };
 
+/** The closest Android family for each look, so the eight choices do not collapse into one face. */
+const ANDROID: Record<FontId, string> = {
+  clean: 'sans-serif',
+  classic: 'serif',
+  book: 'serif',
+  modern: 'sans-serif-light',
+  display: 'sans-serif-condensed',
+  typewriter: 'monospace',
+  friendly: 'sans-serif-medium',
+  mono: 'monospace',
+};
+
 const fallback = Platform.select({ ios: 'Helvetica', default: 'sans-serif' });
 const cache = new Map<string, SkFont>();
 
@@ -27,7 +39,12 @@ export function fontFor(id: FontId, bold: boolean, size: number): SkFont {
   const key = `${id}|${bold ? 1 : 0}`;
   let font = cache.get(key);
   if (!font) {
-    font = matchFont({ fontFamily: Platform.OS === 'ios' ? FAMILIES[id] : fallback, fontSize: size, fontWeight: bold ? 'bold' : 'normal' });
+    const family = Platform.OS === 'ios' ? FAMILIES[id] : ANDROID[id];
+    try {
+      font = matchFont({ fontFamily: family, fontSize: size, fontWeight: bold ? 'bold' : 'normal' });
+    } catch {
+      font = matchFont({ fontFamily: fallback, fontSize: size, fontWeight: bold ? 'bold' : 'normal' });
+    }
     cache.set(key, font);
   }
   font.setSize(size);

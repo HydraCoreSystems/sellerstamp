@@ -130,28 +130,50 @@ export function discardStamped(uri: string | null): void {
   }
 }
 
-/** A plain sample photo for the first run, so a new seller sees their stamp before they pick anything. */
+/** A flat sample photo of a potted plant, so a seller sees a stamp before they pick anything. */
 export function makeSamplePhoto(): string {
   const w = 1200;
   const h = 900;
   const surface = Skia.Surface.Make(w, h);
   if (!surface) throw new Error('Could not make the sample photo');
   const canvas = surface.getCanvas();
-  const sky = Skia.Paint();
-  sky.setColor(Skia.Color('#CFE3DA'));
-  canvas.drawRect(Skia.XYWHRect(0, 0, w, h), sky);
-  const table = Skia.Paint();
-  table.setColor(Skia.Color('#B9926B'));
-  canvas.drawRect(Skia.XYWHRect(0, h * 0.62, w, h * 0.38), table);
-  const pot = Skia.Paint();
-  pot.setColor(Skia.Color('#C26B4A'));
-  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(w * 0.38, h * 0.42, w * 0.24, h * 0.24), 24, 24), pot);
-  const leaf = Skia.Paint();
-  leaf.setColor(Skia.Color('#3E7A4B'));
-  leaf.setAntiAlias(true);
-  for (const [dx, dy, r] of [[0, -0.1, 0.1], [-0.08, -0.04, 0.085], [0.08, -0.04, 0.085], [0, -0.17, 0.07]]) {
-    canvas.drawCircle(w * (0.5 + dx), h * (0.42 + dy), h * r, leaf);
-  }
+  const fill = (color: string, alpha = 1) => paint(color, alpha);
+  canvas.drawRect(Skia.XYWHRect(0, 0, w, h), fill('#DCE9DC'));
+  canvas.drawRect(Skia.XYWHRect(0, h * 0.62, w, h * 0.38), fill('#A97C50'));
+  // A soft shadow under the pot.
+  canvas.drawOval(Skia.XYWHRect(w * 0.32, h * 0.635, w * 0.36, h * 0.07), fill('#000000', 0.18));
+  // Stems rise from the pot, then the leaves go on top of them.
+  const stem = fill('#2F6B3C');
+  stem.setStyle(PaintStyle.Stroke);
+  stem.setStrokeWidth(10);
+  stem.setStrokeCap(1);
+  const stems: [number, number][] = [[-0.16, 0.16], [-0.09, 0.08], [0, 0.05], [0.1, 0.1], [0.17, 0.17], [-0.03, 0.2]];
+  const base = { x: w * 0.5, y: h * 0.45 };
+  for (const [dx, up] of stems) canvas.drawLine(base.x, base.y, w * (0.5 + dx), h * (0.45 - up - 0.08), stem);
+  const greens = ['#2F6B3C', '#3E7A4B', '#6FA05E'];
+  // [dx, dy, length, width, angle in degrees]
+  const leaves: [number, number, number, number, number][] = [
+    [-0.2, -0.26, 0.17, 0.075, -35],
+    [-0.12, -0.34, 0.16, 0.07, -60],
+    [0, -0.4, 0.15, 0.07, -90],
+    [0.12, -0.34, 0.16, 0.07, -120],
+    [0.2, -0.26, 0.17, 0.075, -145],
+    [-0.26, -0.15, 0.14, 0.06, -10],
+    [0.26, -0.15, 0.14, 0.06, -170],
+    [-0.06, -0.2, 0.13, 0.06, -75],
+    [0.07, -0.21, 0.13, 0.06, -105],
+  ];
+  leaves.forEach(([dx, dy, len, wid, deg], i) => {
+    canvas.save();
+    canvas.translate(w * (0.5 + dx), h * (0.45 + dy));
+    canvas.rotate(deg, 0, 0);
+    canvas.drawOval(Skia.XYWHRect(-w * len * 0.5, -h * wid * 0.5, w * len, h * wid), fill(greens[i % 3]));
+    canvas.restore();
+  });
+  // The pot: body, rim band, and a thin highlight under the rim.
+  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(w * 0.385, h * 0.44, w * 0.23, h * 0.215), 22, 22), fill('#BC6242'));
+  canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(w * 0.37, h * 0.42, w * 0.26, h * 0.05), 12, 12), fill('#A5522F'));
+  canvas.drawRect(Skia.XYWHRect(w * 0.385, h * 0.478, w * 0.23, 5), fill('#D08A63'));
   surface.flush();
   const bytes = surface.makeImageSnapshot().encodeToBytes(ImageFormat.JPEG, 92);
   const dir = new Directory(Paths.cache, 'stamped');

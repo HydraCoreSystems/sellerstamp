@@ -58,6 +58,7 @@ export const HOME = {
   designs: 'Your designs',
   editDesign: 'Change how your stamp looks',
   settings: 'Settings',
+  settingsHint: 'Profile, plan, and privacy',
 };
 
 export const FIRST_RUN = {
@@ -70,6 +71,7 @@ export const FIRST_RUN = {
   sampleTitle: 'Here is your stamp',
   sampleBody: 'This is a sample photo. You can change how the stamp looks any time.',
   next: 'Next',
+  roomHint: 'You can make a different design for each room or shop later.',
   done: 'Looks good',
 };
 
@@ -192,6 +194,7 @@ export const leftLine = (left: number): string => (left === Infinity ? 'No limit
 export const PAYWALL = {
   title: 'You have used your free stamps',
   body: `Your first ${FREE_STAMPS} stamps were free. Keep stamping with a plan, or buy it once. Everything else stays the same.`,
+  payOnce: 'Pay once',
   everything: 'Every style, setting and save works the same, free or not.',
   kept: 'Photos you already stamped are safe. You can still save them.',
   monthly: 'Monthly',

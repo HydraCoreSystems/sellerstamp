@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, Switch, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { NO_ADJUST, NUDGE_STEP, SCALE_STEP, isAdjusted, nudge, type PhotoAdjust } from '../core/adjust';
 import { CORNER_NAMES, FONT_NAMES, STRENGTH_NAMES, STUDIO, STYLE_NAMES, STYLE_NOTES, leftLine, HONESTY } from '../core/copy';
 import {
@@ -16,14 +16,45 @@ import {
   saveDesign,
   withStyle,
   type StampDesign,
+  type StyleId,
 } from '../core/design';
+import type { SellerProfile } from '../core/profile';
 import { LIMITS, toDay } from '../core/text';
 import { useApp } from '../lib/app';
 import { newId } from '../lib/id';
-import { chooseLogo, deleteLogo } from '../lib/logo';
+import { chooseLogo, deleteLogo, logoUri } from '../lib/logo';
+import { useSampleStamp } from '../lib/useSampleStamp';
 import { discardStamped, makeSamplePhoto, stampPhoto } from '../lib/stampPhoto';
 import { getSession, setSession, useSession } from '../lib/session';
-import { Button, Chip, Field, Row, Section, Slider, Swatches, colors } from '../ui/kit';
+import { Button, Chip, Field, RoundButton, Row, Section, Slider, Spinner, Swatches, Toggle, colors, face, shadow, type } from '../ui/kit';
+
+/** One miniature of a style: the seller's own words, colors and font on the sample plant. */
+function StyleTile({ style, draft, profile, selected, onPick, onFail }: { style: StyleId; draft: StampDesign; profile: SellerProfile; selected: boolean; onPick: () => void; onFail: () => void }) {
+  const mini = useSampleStamp(withStyle(draft, style), profile, { maxSide: 360, delay: 400 });
+  useEffect(() => {
+    if (mini.failed) onFail();
+  }, [mini.failed]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={STYLE_NAMES[style]}
+      accessibilityState={{ selected }}
+      onPress={onPick}
+      style={{ width: '48%', marginBottom: 12 }}
+    >
+      <View style={{ height: 104, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.card, borderWidth: selected ? 2 : 1, borderColor: selected ? colors.terracotta : colors.line }}>
+        {mini.uri ? (
+          <Image source={{ uri: mini.uri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
+        ) : (
+          <View style={{ flex: 1, backgroundColor: colors.sageTint, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={type.small}>{STYLE_NAMES[style]}</Text>
+          </View>
+        )}
+      </View>
+      <Text style={[type.chip, { fontSize: 13, marginTop: 6, color: selected ? colors.mossDeep : colors.ink }]}>{STYLE_NAMES[style]}</Text>
+    </Pressable>
+  );
+}
 
 export default function Studio() {
   const app = useApp();
@@ -35,6 +66,7 @@ export default function Studio() {
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [gridFailed, setGridFailed] = useState(false);
   const sample = useMemo(() => (hasPhotos ? null : makeSamplePhoto()), [hasPhotos]);
 
   const photo = photos[Math.min(idx, Math.max(0, photos.length - 1))];
@@ -129,25 +161,28 @@ export default function Studio() {
     router.push('/batch');
   };
 
+  const sampleLine = draft.customText.trim() || [app.profile.sellerName, draft.roomName || app.profile.roomName].filter(Boolean).join('  \u00B7  ');
   const repeating = draft.style === 'across' || draft.style === 'tiled';
   const cornerStyle = draft.style === 'corner' || draft.style === 'badge';
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ height: 270, backgroundColor: '#E9ECF3', alignItems: 'center', justifyContent: 'center' }}>
+      <View style={[{ height: 300, margin: 16, marginBottom: 8, borderRadius: 20, backgroundColor: colors.stage, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, shadow.card]}>
         {preview ? <Image source={{ uri: preview }} style={{ width: '100%', height: '100%' }} resizeMode="contain" accessibilityLabel={STUDIO.title} /> : null}
-        {busy ? <ActivityIndicator style={{ position: 'absolute', top: 12, right: 12 }} /> : null}
-        {failed ? <Text style={{ color: colors.danger, padding: 16 }}>{STUDIO.previewFailed}</Text> : null}
+        {busy ? <Spinner style={{ position: 'absolute', top: 12, right: 12 }} /> : null}
+        {failed ? <Text style={[type.body, { color: colors.danger, padding: 16 }]}>{STUDIO.previewFailed}</Text> : null}
         {hasPhotos && photos.length > 1 ? (
-          <Row style={{ position: 'absolute', bottom: 8, left: 8, right: 8, justifyContent: 'space-between' }}>
-            <Button title={STUDIO.previous} kind="secondary" disabled={idx === 0} onPress={() => setIdx((n) => Math.max(0, n - 1))} style={{ minHeight: 36, paddingHorizontal: 12 }} />
-            <Text style={{ alignSelf: 'center', fontWeight: '700', color: colors.ink }}>{STUDIO.photoOf(idx + 1, photos.length)}</Text>
-            <Button title={STUDIO.next} kind="secondary" disabled={idx >= photos.length - 1} onPress={() => setIdx((n) => Math.min(photos.length - 1, n + 1))} style={{ minHeight: 36, paddingHorizontal: 12 }} />
-          </Row>
+          <>
+            <RoundButton glyph={'\u2039'} label={STUDIO.previous} size={40} fill={colors.card} onPress={() => setIdx((n) => Math.max(0, n - 1))} style={{ position: 'absolute', left: 10, bottom: 10, opacity: idx === 0 ? 0.4 : 1 }} />
+            <View style={{ position: 'absolute', bottom: 10, alignSelf: 'center', backgroundColor: 'rgba(24,53,41,0.88)', borderRadius: 14, paddingVertical: 6, paddingHorizontal: 12 }}>
+              <Text style={{ fontFamily: face.semi, fontSize: 13, color: colors.card }}>{STUDIO.photoOf(idx + 1, photos.length)}</Text>
+            </View>
+            <RoundButton glyph={'\u203A'} label={STUDIO.next} size={40} fill={colors.card} onPress={() => setIdx((n) => Math.min(photos.length - 1, n + 1))} style={{ position: 'absolute', right: 10, bottom: 10, opacity: idx >= photos.length - 1 ? 0.4 : 1 }} />
+          </>
         ) : null}
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 12, paddingBottom: 140 }} keyboardShouldPersistTaps="handled">
         <Section title={STUDIO.designs}>
           <Row style={{ flexWrap: 'wrap' }}>
             {app.library.designs.map((d) => (
@@ -164,36 +199,47 @@ export default function Studio() {
         </Section>
 
         <Section title={STUDIO.style}>
-          <Row style={{ flexWrap: 'wrap' }}>
-            {STYLES.map((s) => (
-              <Chip key={s} title={STYLE_NAMES[s]} active={draft.style === s} onPress={() => setDraft((d) => withStyle(d, s))} />
-            ))}
-          </Row>
-          <Text style={{ fontSize: 13, color: colors.inkSoft, lineHeight: 19 }}>{STYLE_NOTES[draft.style]}</Text>
+          {gridFailed ? (
+            <Row style={{ flexWrap: 'wrap' }}>
+              {STYLES.map((s) => (
+                <Chip key={s} title={STYLE_NAMES[s]} active={draft.style === s} onPress={() => setDraft((d) => withStyle(d, s))} />
+              ))}
+            </Row>
+          ) : (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+              {STYLES.map((s) => (
+                <StyleTile key={s} style={s} draft={draft} profile={app.profile} selected={draft.style === s} onPick={() => setDraft((d) => withStyle(d, s))} onFail={() => setGridFailed(true)} />
+              ))}
+            </View>
+          )}
+          <Text style={type.secondary}>{STYLE_NOTES[draft.style]}</Text>
         </Section>
 
         <Section title={STUDIO.words}>
           <Field label={STUDIO.customText} hint={STUDIO.customHint} value={draft.customText} maxLength={LIMITS.customMain} onChangeText={(t) => update({ customText: t })} />
           <Row style={{ justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{STUDIO.showDate}</Text>
-            <Switch value={draft.showDate} onValueChange={(v) => update({ showDate: v })} accessibilityLabel={STUDIO.showDate} />
+            <Text style={type.bodySemi}>{STUDIO.showDate}</Text>
+            <Toggle value={draft.showDate} onValueChange={(v) => update({ showDate: v })} label={STUDIO.showDate} />
           </Row>
         </Section>
 
         <Section title={STUDIO.look}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.ink, marginBottom: 6 }}>{STUDIO.font}</Text>
+          <Text style={[type.label, { marginBottom: 6 }]}>{STUDIO.font}</Text>
           <Row style={{ flexWrap: 'wrap' }}>
             {FONTS.map((f) => (
               <Chip key={f} title={FONT_NAMES[f]} active={draft.font === f} onPress={() => update({ font: f })} />
             ))}
           </Row>
+          <Text style={{ fontSize: 20, color: colors.ink, marginBottom: 14, fontWeight: draft.bold ? '700' : '400' }} numberOfLines={1}>
+            {sampleLine}
+          </Text>
           <Row style={{ justifyContent: 'space-between', marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{STUDIO.bold}</Text>
-            <Switch value={draft.bold} onValueChange={(v) => update({ bold: v })} accessibilityLabel={STUDIO.bold} />
+            <Text style={type.bodySemi}>{STUDIO.bold}</Text>
+            <Toggle value={draft.bold} onValueChange={(v) => update({ bold: v })} label={STUDIO.bold} />
           </Row>
           <Swatches label={STUDIO.textColor} value={draft.textColor} onChange={(c) => update({ textColor: c })} />
           <Swatches label={STUDIO.bandColor} value={draft.bandColor} onChange={(c) => update({ bandColor: c })} />
-          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.ink, marginBottom: 6 }}>{STUDIO.strength}</Text>
+          <Text style={[type.label, { marginBottom: 6 }]}>{STUDIO.strength}</Text>
           <Row style={{ flexWrap: 'wrap' }}>
             {STRENGTHS.map((s) => (
               <Chip key={s} title={STRENGTH_NAMES[s]} active={draft.strength === s} onPress={() => update({ strength: s })} />
@@ -208,7 +254,7 @@ export default function Studio() {
           {repeating ? <Slider label={STUDIO.angle} value={draft.angle} {...RANGES.angle} format={(v) => `${Math.round(v)} degrees`} onChange={(v) => update({ angle: v })} /> : null}
           {cornerStyle ? (
             <>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: colors.ink, marginBottom: 6 }}>{STUDIO.corner}</Text>
+              <Text style={[type.label, { marginBottom: 6 }]}>{STUDIO.corner}</Text>
               <Row style={{ flexWrap: 'wrap' }}>
                 {CORNERS.map((c) => (
                   <Chip key={c} title={CORNER_NAMES[c]} active={draft.corner === c} onPress={() => update({ corner: c })} />
@@ -225,6 +271,7 @@ export default function Studio() {
             <Chip title={STUDIO.logoAlone} active={draft.logoMode === 'alone'} onPress={() => draft.logoFile && update({ logoMode: 'alone' })} />
           </Row>
           <Row>
+            {draft.logoFile ? <Image source={{ uri: logoUri(draft.logoFile) }} resizeMode="contain" style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: colors.paper, marginRight: 10 }} accessibilityLabel={STUDIO.logo} /> : null}
             <Button title={STUDIO.logoChoose} kind="secondary" onPress={() => void pickLogo()} style={{ marginRight: 8 }} />
             {draft.logoFile ? <Button title={STUDIO.logoRemove} kind="quiet" onPress={removeLogo} /> : null}
           </Row>
@@ -233,8 +280,8 @@ export default function Studio() {
         {draft.style !== 'badge' ? (
           <Section title={STUDIO.badge}>
             <Row style={{ justifyContent: 'space-between', marginBottom: 10 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{STUDIO.badgeOn}</Text>
-              <Switch value={draft.badge.on} onValueChange={(v) => update({ badge: { ...draft.badge, on: v } })} accessibilityLabel={STUDIO.badgeOn} />
+              <Text style={type.bodySemi}>{STUDIO.badgeOn}</Text>
+              <Toggle value={draft.badge.on} onValueChange={(v) => update({ badge: { ...draft.badge, on: v } })} label={STUDIO.badgeOn} />
             </Row>
             {draft.badge.on ? (
               <>
@@ -255,11 +302,15 @@ export default function Studio() {
 
         {hasPhotos ? (
           <Section title={STUDIO.thisPhoto} hint={STUDIO.thisPhotoHint}>
-            <Row style={{ flexWrap: 'wrap' }}>
-              <Chip title={STUDIO.left} onPress={() => setAdjust(nudge(adjust, { dx: -NUDGE_STEP }))} />
-              <Chip title={STUDIO.right} onPress={() => setAdjust(nudge(adjust, { dx: NUDGE_STEP }))} />
-              <Chip title={STUDIO.up} onPress={() => setAdjust(nudge(adjust, { dy: -NUDGE_STEP }))} />
-              <Chip title={STUDIO.down} onPress={() => setAdjust(nudge(adjust, { dy: NUDGE_STEP }))} />
+            <View style={{ alignItems: 'center', marginBottom: 8 }}>
+              <RoundButton glyph={'\u2191'} label={STUDIO.up} onPress={() => setAdjust(nudge(adjust, { dy: -NUDGE_STEP }))} />
+              <Row style={{ marginVertical: 6 }}>
+                <RoundButton glyph={'\u2190'} label={STUDIO.left} onPress={() => setAdjust(nudge(adjust, { dx: -NUDGE_STEP }))} />
+                <RoundButton glyph={'\u2193'} label={STUDIO.down} onPress={() => setAdjust(nudge(adjust, { dy: NUDGE_STEP }))} style={{ marginHorizontal: 6 }} />
+                <RoundButton glyph={'\u2192'} label={STUDIO.right} onPress={() => setAdjust(nudge(adjust, { dx: NUDGE_STEP }))} />
+              </Row>
+            </View>
+            <Row style={{ justifyContent: 'center' }}>
               <Chip title={STUDIO.smaller} onPress={() => setAdjust(nudge(adjust, { scale: -SCALE_STEP }))} />
               <Chip title={STUDIO.larger} onPress={() => setAdjust(nudge(adjust, { scale: SCALE_STEP }))} />
             </Row>
@@ -267,12 +318,12 @@ export default function Studio() {
           </Section>
         ) : null}
 
-        <Text style={{ fontSize: 12, color: colors.inkSoft, lineHeight: 17 }}>{HONESTY}</Text>
+        <Text style={type.small}>{HONESTY}</Text>
       </ScrollView>
 
       {hasPhotos ? (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line }}>
-          <Text style={{ fontSize: 13, color: colors.inkSoft, marginBottom: 6, textAlign: 'center' }}>{app.unlimited ? '' : leftLine(app.left)}</Text>
+        <View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.line }, shadow.bar]}>
+          <Text style={[type.small, { marginBottom: 6, textAlign: 'center' }]}>{leftLine(app.unlimited ? Infinity : app.left)}</Text>
           <Button title={`${STUDIO.start} (${photos.length})`} onPress={start} />
         </View>
       ) : null}

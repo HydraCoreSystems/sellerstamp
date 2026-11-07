@@ -1,0 +1,50 @@
+import { useEffect, useRef, useState } from 'react';
+import { designKey, type StampDesign } from '../core/design';
+import type { SellerProfile } from '../core/profile';
+import { toDay } from '../core/text';
+import { discardStamped, makeSamplePhoto, stampPhoto } from './stampPhoto';
+
+let samplePhoto: string | null = null;
+
+/** The drawn sample plant, made once and reused by every screen that shows a sample stamp. */
+export function sampleUri(): string {
+  if (!samplePhoto) samplePhoto = makeSamplePhoto();
+  return samplePhoto;
+}
+
+/**
+ * The seller's design stamped onto the sample plant at a small size. It is redrawn a moment after the
+ * design or the profile changes, the same way the Studio preview works. Old copies are deleted.
+ */
+export function useSampleStamp(design: StampDesign, profile: SellerProfile, opts: { maxSide?: number; delay?: number } = {}) {
+  const { maxSide = 600, delay = 250 } = opts;
+  const [uri, setUri] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const last = useRef<string | null>(null);
+  const key = `${designKey(design)}|${profile.sellerName}|${profile.roomName}|${profile.sellerNumber}|${profile.secondLine}`;
+
+  useEffect(() => {
+    let live = true;
+    const t = setTimeout(() => {
+      stampPhoto({ photoUri: sampleUri(), design, profile, day: toDay(new Date()), maxSide })
+        .then((r) => {
+          if (!live) return discardStamped(r.uri);
+          discardStamped(last.current);
+          last.current = r.uri;
+          setFailed(false);
+          setUri(r.uri);
+        })
+        .catch(() => live && setFailed(true));
+    }, delay);
+    return () => {
+      live = false;
+      clearTimeout(t);
+    };
+    // The key stands for the design and profile values.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, maxSide, delay]);
+
+  useEffect(() => () => discardStamped(last.current), []);
+
+  return { uri, failed };
+}

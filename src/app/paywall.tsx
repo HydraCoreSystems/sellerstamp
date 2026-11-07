@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, Text, View } from 'react-native';
+import { Image, Linking, ScrollView, Text, View } from 'react-native';
 import { PAYWALL, TERMS_URL } from '../core/copy';
 import { PLAN_ANNUAL, PLAN_LIFETIME, PLAN_MONTHLY, planLine, type PlanProduct } from '../core/entitlement';
 import { useApp } from '../lib/app';
 import { buy, iapAvailable, loadPlans, restore } from '../lib/iap';
-import { Button, Section, colors } from '../ui/kit';
+import { useSampleStamp } from '../lib/useSampleStamp';
+import { Button, Panel, Row, SCREEN_PAD, Section, Spinner, colors, face, type } from '../ui/kit';
 
 const NAMES: Record<string, string> = { [PLAN_ANNUAL]: PAYWALL.annual, [PLAN_MONTHLY]: PAYWALL.monthly, [PLAN_LIFETIME]: PAYWALL.lifetime };
 
@@ -18,6 +19,7 @@ export default function Paywall() {
   const [plans, setPlans] = useState<PlanProduct[] | null>(null);
   const [down, setDown] = useState(false);
   const [working, setWorking] = useState(false);
+  const strip = useSampleStamp(app.design, app.profile, { maxSide: 800 });
 
   const load = useCallback(() => {
     setDown(false);
@@ -61,32 +63,52 @@ export default function Paywall() {
     }
   };
 
-  return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-      <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, marginBottom: 8 }}>{PAYWALL.title}</Text>
-      <Text style={{ fontSize: 15, color: colors.inkSoft, lineHeight: 22, marginBottom: 6 }}>{PAYWALL.body}</Text>
-      <Text style={{ fontSize: 15, color: colors.inkSoft, lineHeight: 22, marginBottom: 6 }}>{PAYWALL.everything}</Text>
-      <Text style={{ fontSize: 15, color: colors.inkSoft, lineHeight: 22, marginBottom: 16 }}>{PAYWALL.kept}</Text>
+  const tick = (text: string) => (
+    <Row style={{ alignItems: 'flex-start', marginBottom: 8 }}>
+      <Text style={{ fontFamily: face.bold, fontSize: 16, lineHeight: 23, color: colors.moss, width: 24 }}>{'\u2713'}</Text>
+      <Text style={[type.body, { flex: 1 }]}>{text}</Text>
+    </Row>
+  );
 
-      {plans === null && !down ? <ActivityIndicator style={{ marginVertical: 24 }} /> : null}
+  return (
+    <ScrollView contentContainerStyle={{ padding: SCREEN_PAD, paddingBottom: 40 }}>
+      <Text style={{ fontFamily: face.display, fontSize: 26, lineHeight: 32, letterSpacing: -0.3, color: colors.ink, marginBottom: 12 }}>{PAYWALL.title}</Text>
+      <View style={{ height: 120, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.stage, marginBottom: 14 }}>
+        {strip.uri ? <Image source={{ uri: strip.uri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} /> : null}
+      </View>
+      <Text style={[type.body, { color: colors.inkSoft, marginBottom: 12 }]}>{PAYWALL.body}</Text>
+      {tick(PAYWALL.everything)}
+      {tick(PAYWALL.kept)}
+      <View style={{ height: 8 }} />
+
+      {plans === null && !down ? <Spinner style={{ marginVertical: 24 }} /> : null}
       {down ? (
         <Section title={PAYWALL.storeDown}>
           <Button title={PAYWALL.tryAgain} kind="secondary" onPress={load} />
         </Section>
       ) : null}
-      {plans?.map((p) => (
-        <Section key={p.id} title={NAMES[p.id] ?? p.id}>
-          <Text style={{ fontSize: 16, color: colors.ink, marginBottom: 10 }}>{planLine(p)}</Text>
-          <Button title={PAYWALL.buy} onPress={() => void choose(p.id)} disabled={working} />
-        </Section>
-      ))}
+      {plans?.map((p) => {
+        const lifetime = p.id === PLAN_LIFETIME;
+        return (
+          <Panel key={p.id} style={[{ padding: 18 }, lifetime && { borderWidth: 2, borderColor: colors.gold }]}>
+            {lifetime ? (
+              <View style={{ alignSelf: 'flex-start', backgroundColor: colors.gold, borderRadius: 10, paddingVertical: 4, paddingHorizontal: 10, marginBottom: 8 }}>
+                <Text style={{ fontFamily: face.bold, fontSize: 12, color: colors.ink }}>{PAYWALL.payOnce}</Text>
+              </View>
+            ) : null}
+            <Text style={[type.cardTitle, { marginBottom: 6 }]}>{NAMES[p.id] ?? p.id}</Text>
+            <Text style={{ fontFamily: face.semi, fontSize: 17, lineHeight: 24, color: colors.ink, marginBottom: 12 }}>{planLine(p)}</Text>
+            <Button title={PAYWALL.buy} kind={lifetime ? 'primary' : 'secondary'} onPress={() => void choose(p.id)} disabled={working} />
+          </Panel>
+        );
+      })}
 
       <Button title={PAYWALL.restore} kind="quiet" onPress={() => void doRestore()} disabled={working} />
       <Button title={PAYWALL.notNow} kind="quiet" onPress={() => router.back()} />
 
       <View style={{ marginTop: 16 }}>
         {PAYWALL.terms.map((t) => (
-          <Text key={t} style={{ fontSize: 11, color: colors.inkSoft, lineHeight: 16, marginBottom: 4 }}>{t}</Text>
+          <Text key={t} style={{ fontFamily: face.regular, fontSize: 11, color: colors.inkSoft, lineHeight: 16, marginBottom: 4 }}>{t}</Text>
         ))}
         <Button title={PAYWALL.termsLink} kind="quiet" onPress={() => void Linking.openURL(TERMS_URL)} />
       </View>

@@ -18,7 +18,7 @@ export const STRENGTHS: Strength[] = ['light', 'medium', 'strong'];
 export const CORNERS: Corner[] = ['tl', 'tr', 'bl', 'br'];
 export const LOGO_MODES: LogoMode[] = ['off', 'beside', 'alone'];
 
-/** How dark the band or plate behind the words is. Medium is the Skrybix band. */
+/** How strong the moss band (or plate) behind the words is. Medium is the Skrybix band strength. */
 export const BAND_ALPHA: Record<Strength, number> = { light: 0.3, medium: 0.55, strong: 0.8 };
 
 /** The ranges the sliders cover. */
@@ -96,7 +96,7 @@ export function newDesign(id: string, profile: SellerProfile, style: StyleId = '
     font: 'clean',
     bold: true,
     textColor: '#FFFFFF',
-    bandColor: '#000000',
+    bandColor: '#22483A',
     strength: 'medium',
     ...styleDefaults(style),
     showDate: false,

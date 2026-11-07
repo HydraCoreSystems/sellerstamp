@@ -23,11 +23,11 @@ import type { SellerProfile } from '../src/core/profile';
 const profile: SellerProfile = { sellerName: 'Fern Hollow', roomName: 'Hoya Hangout', sellerNumber: '', secondLine: '' };
 
 describe('a new design', () => {
-  it('starts as the Skrybix band: bottom, white on medium black, no date, no badge, no logo', () => {
+  it('starts as the Skrybix band: bottom, white on a medium moss band, no date, no badge, no logo', () => {
     const d = newDesign('a', profile);
     expect(d.style).toBe('bandBottom');
     expect(d.textColor).toBe('#FFFFFF');
-    expect(d.bandColor).toBe('#000000');
+    expect(d.bandColor).toBe('#22483A');
     expect(d.strength).toBe('medium');
     expect(BAND_ALPHA.medium).toBe(0.55);
     expect(BAND_ALPHA.light).toBe(0.3);
