@@ -210,7 +210,7 @@ export const PAYWALL = {
     'Payment is charged to your Apple Account at confirmation of purchase.',
     'A subscription renews automatically unless it is turned off at least 24 hours before the end of the current period.',
     'Your account is charged for renewal within 24 hours before the end of the current period.',
-    'Manage or cancel any time in your Apple Account settings. The lifetime unlock is bought once and does not renew.',
+    'Manage or cancel any time in your Apple Account settings.',
   ],
   termsLink: 'Terms of use',
   restore: 'Restore purchases',
